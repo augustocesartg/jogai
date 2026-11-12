@@ -17,6 +17,10 @@ describe('banco de palavras', () => {
     const ids = todas.map((p) => p.id)
     expect(new Set(ids).size).toBe(ids.length)
   })
+  it('não repete a mesma resposta entre matérias', () => {
+    const chaves = todas.map((p) => p.chave)
+    expect(new Set(chaves).size).toBe(chaves.length)
+  })
   it('respostas têm de 3 a 12 letras e dica', () => {
     for (const p of todas) {
       expect(p.chave.length).toBeGreaterThanOrEqual(3)
