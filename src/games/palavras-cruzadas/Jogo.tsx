@@ -11,6 +11,13 @@ interface Props {
 }
 
 const SENTINELA = '·'
+
+function formatarTempo(ms: number) {
+  const total = Math.max(0, Math.round(ms / 1000))
+  const m = Math.floor(total / 60)
+  const s = total % 60
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+}
 const chave = (l: number, c: number) => `${l},${c}`
 
 function celulasDe(p: Colocada): [number, number][] {
@@ -71,16 +78,23 @@ export function Jogo({ tabuleiro, onNovo, onConfig }: Props) {
   const venceu = resolvidas.size === palavras.length
 
   const [festa, setFesta] = useState(false)
+  const [inicio] = useState(() => Date.now())
+  const [fim, setFim] = useState<number | null>(null)
+  const [ajudas, setAjudas] = useState(0)
+  const [resumoFechado, setResumoFechado] = useState(false)
   const anteriores = useRef(0)
   useEffect(() => {
     const novas = resolvidas.size - anteriores.current
     anteriores.current = resolvidas.size
     if (novas <= 0) return
     for (let i = 0; i < novas; i++) registrarAcerto()
+    // congela o tempo no instante em que a última palavra é resolvida
+    // oxlint-disable-next-line react/set-state-in-effect -- o instante da vitória só existe como evento
+    if (resolvidas.size === palavras.length) setFim((t) => t ?? Date.now())
     setFesta(true)
     const t = setTimeout(() => setFesta(false), 1800)
     return () => clearTimeout(t)
-  }, [resolvidas])
+  }, [resolvidas, palavras.length])
 
   function selecionar(l: number, c: number) {
     if (!mapa.has(chave(l, c))) return
@@ -148,7 +162,10 @@ export function Jogo({ tabuleiro, onNovo, onConfig }: Props) {
   function revelar() {
     const k = chave(sel.l, sel.c)
     const certa = mapa.get(k)?.letra
-    if (certa && !travadas.has(k)) setLetras((x) => ({ ...x, [k]: certa }))
+    if (certa && !travadas.has(k)) {
+      if (letras[k] !== certa) setAjudas((a) => a + 1)
+      setLetras((x) => ({ ...x, [k]: certa }))
+    }
   }
 
   const lista = (d: Direcao) =>
@@ -219,11 +236,30 @@ export function Jogo({ tabuleiro, onNovo, onConfig }: Props) {
         <button onClick={onNovo}>🔄 Novo jogo</button>
       </div>
 
-      {venceu && (
-        <div className="vitoria" role="status">
-          <Mascote pose="comemorando" tamanho={130} />
-          Parabéns! Você completou a cruzadinha.
-          <button className="primario" onClick={onNovo}>Jogar de novo</button>
+      {venceu && !resumoFechado && (
+        <div className="vitoria-fundo" role="dialog" aria-modal="true" aria-label="Resumo da partida">
+          <div className="vitoria-tela">
+            <Mascote pose="comemorando" tamanho={150} />
+            <h2>Parabéns!</h2>
+            <p>Você completou a cruzadinha.</p>
+            <dl className="resumo">
+              <div>
+                <dt>⏱️ Tempo</dt>
+                <dd>{formatarTempo((fim ?? inicio) - inicio)}</dd>
+              </div>
+              <div>
+                <dt>✅ Acertos</dt>
+                <dd>{resolvidas.size}/{palavras.length}</dd>
+              </div>
+              <div>
+                <dt>💡 Ajudas</dt>
+                <dd>{ajudas}</dd>
+              </div>
+            </dl>
+            <button className="primario" onClick={onNovo}>Jogar de novo</button>
+            <button className="secundario" onClick={() => setResumoFechado(true)}>Ver cruzadinha</button>
+            <button className="voltar" onClick={onConfig}>Mudar matérias</button>
+          </div>
         </div>
       )}
 

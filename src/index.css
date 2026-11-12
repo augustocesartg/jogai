@@ -139,3 +139,28 @@ body {
 .placar { display: flex; align-items: center; gap: 6px; }
 .mascote-mini { display: block; }
 .vitoria svg { display: block; }
+
+/* ===== tela de vitória ===== */
+.vitoria-fundo {
+  position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px;
+  background: rgba(15, 17, 26, 0.6); animation: aparece 0.2s;
+}
+.vitoria-tela {
+  width: 100%; max-width: 380px; background: var(--card); border-radius: 20px;
+  padding: 20px 20px 16px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  text-align: center; animation: sobe 0.3s;
+}
+.vitoria-tela h2 { margin: 0; font-size: 1.6rem; color: var(--primaria); }
+.vitoria-tela p { margin: 0; color: var(--suave); }
+.vitoria-tela svg { display: block; }
+.resumo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; margin: 10px 0 8px; }
+.resumo div { background: var(--bg); border-radius: 12px; padding: 10px 4px; }
+.resumo dt { font-size: 0.75rem; color: var(--suave); }
+.resumo dd { margin: 4px 0 0; font-size: 1.3rem; font-weight: 700; }
+.vitoria-tela .primario { width: 100%; }
+.secundario {
+  width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--primaria);
+  background: none; color: var(--primaria); font-weight: 600; min-height: 46px;
+}
+@keyframes aparece { from { opacity: 0; } }
+@keyframes sobe { from { transform: translateY(20px); opacity: 0; } }
