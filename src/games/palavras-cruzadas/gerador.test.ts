@@ -17,6 +17,9 @@ describe('banco de palavras', () => {
     const ids = todas.map((p) => p.id)
     expect(new Set(ids).size).toBe(ids.length)
   })
+  it('tem 300 palavras por matéria', () => {
+    for (const lista of Object.values(BANCO)) expect(lista.length).toBe(300)
+  })
   it('não repete a mesma resposta entre matérias', () => {
     const chaves = todas.map((p) => p.chave)
     expect(new Set(chaves).size).toBe(chaves.length)
