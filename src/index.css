@@ -96,3 +96,46 @@ main { max-width: 560px; margin: 0 auto; padding: 12px 8px 32px; }
   border-bottom: 1px solid var(--borda);
 }
 .dicas li.ok button { color: var(--suave); }
+
+/* ===== identidade Jogaí ===== */
+:root { --grade: rgba(79, 70, 229, 0.07); --amarelo: #fbbf24; }
+@media (prefers-color-scheme: dark) { :root { --grade: rgba(129, 140, 248, 0.09); } }
+body {
+  background-image:
+    linear-gradient(var(--grade) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grade) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+.home { padding-top: 20px; }
+.topo { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.mascote-home { flex: none; }
+.logo { font-size: 3rem; line-height: 1; margin: 0; color: var(--primaria); letter-spacing: -1px; }
+.tagline { margin: 6px 0 0; font-size: 1.2rem; color: var(--suave); }
+.stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
+.stat {
+  background: var(--card); border: 1px solid var(--borda); border-radius: 999px;
+  padding: 6px 12px; font-size: 0.9rem;
+}
+.secao { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--suave); margin: 22px 0 10px; }
+.lista-jogos { display: grid; gap: 12px; }
+.cartao-jogo { min-height: 76px; }
+.cartao-jogo .textos { flex: 1; }
+.cartao-jogo.destaque {
+  background: var(--primaria); color: #fff; border: 0;
+  box-shadow: 0 5px 0 #3730a3; transition: transform 0.1s, box-shadow 0.1s;
+}
+.cartao-jogo.destaque small { color: #e0e7ff; }
+.cartao-jogo.destaque:active { transform: translateY(4px); box-shadow: 0 1px 0 #3730a3; }
+.cartao-jogo .jogar {
+  background: var(--amarelo); color: #1f2430; font-weight: 700;
+  padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; white-space: nowrap;
+}
+.cartao-jogo.breve { opacity: 0.6; border-style: dashed; cursor: default; }
+.rodape { margin-top: 36px; text-align: center; color: var(--suave); font-size: 0.8rem; }
+
+.config-topo { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.config-topo h1 { margin: 0; font-size: 1.5rem; }
+.config-topo .sub { margin: 4px 0 0; }
+.placar { display: flex; align-items: center; gap: 6px; }
+.mascote-mini { display: block; }
+.vitoria svg { display: block; }

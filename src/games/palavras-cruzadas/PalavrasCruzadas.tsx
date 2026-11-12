@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Mascote } from '../../components/Mascote'
 import { BANCO } from './banco'
 import { Jogo } from './Jogo'
 import { gerarTabuleiro } from './gerador'
@@ -54,8 +55,13 @@ export function PalavrasCruzadas({ onSair }: { onSair: () => void }) {
   return (
     <main className="config">
       <button className="voltar" onClick={onSair}>← Jogos</button>
-      <h1>Palavras Cruzadas</h1>
-      <p className="sub">Matérias</p>
+      <div className="config-topo">
+        <Mascote pose="escritor" tamanho={120} />
+        <div>
+          <h1>Palavras Cruzadas</h1>
+          <p className="sub">Escolha as matérias</p>
+        </div>
+      </div>
       <div className="chips">
         {MATERIAS.map((m) => (
           <button

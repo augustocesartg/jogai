@@ -1,5 +1,7 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Mascote } from '../../components/Mascote'
 import { normalizar } from './normalizar'
+import { registrarAcerto } from './progresso'
 import type { Colocada, Direcao, Tabuleiro } from './types'
 
 interface Props {
@@ -67,6 +69,18 @@ export function Jogo({ tabuleiro, onNovo, onConfig }: Props) {
   const ativa = palavraEm(sel.l, sel.c, sel.d)
   const celulasAtiva = new Set(ativa ? celulasDe(ativa).map(([l, c]) => chave(l, c)) : [])
   const venceu = resolvidas.size === palavras.length
+
+  const [festa, setFesta] = useState(false)
+  const anteriores = useRef(0)
+  useEffect(() => {
+    const novas = resolvidas.size - anteriores.current
+    anteriores.current = resolvidas.size
+    if (novas <= 0) return
+    for (let i = 0; i < novas; i++) registrarAcerto()
+    setFesta(true)
+    const t = setTimeout(() => setFesta(false), 1800)
+    return () => clearTimeout(t)
+  }, [resolvidas])
 
   function selecionar(l: number, c: number) {
     if (!mapa.has(chave(l, c))) return
@@ -144,7 +158,10 @@ export function Jogo({ tabuleiro, onNovo, onConfig }: Props) {
     <main className="jogo">
       <header className="barra">
         <button className="voltar" onClick={onConfig}>← Matérias</button>
-        <span className="placar">{resolvidas.size}/{palavras.length}</span>
+        <span className="placar">
+          {resolvidas.size}/{palavras.length}
+          <Mascote pose={festa || venceu ? 'comemorando' : 'boas-vindas'} tamanho={44} className="mascote-mini" />
+        </span>
       </header>
 
       <div className="dica-ativa" aria-live="polite">
@@ -204,7 +221,8 @@ export function Jogo({ tabuleiro, onNovo, onConfig }: Props) {
 
       {venceu && (
         <div className="vitoria" role="status">
-          🎉 Parabéns! Você completou a cruzadinha.
+          <Mascote pose="comemorando" tamanho={130} />
+          Parabéns! Você completou a cruzadinha.
           <button className="primario" onClick={onNovo}>Jogar de novo</button>
         </div>
       )}
