@@ -17,3 +17,6 @@ Arquivos em `src/games/palavras-cruzadas/data/` (`['Resposta', 'dica']`). Respos
 1. Suba o repositório no GitHub.
 2. Cloudflare Dashboard → Workers & Pages → Create → Pages → Connect to Git.
 3. Build command: `npm run build` · Output directory: `dist`.
+
+## PWA
+O site é instalável e funciona offline depois da primeira visita (`public/manifest.webmanifest`, `public/sw.js`). Para regenerar os ícones PNG: `python3 design/gerar-icones.py public`. Ao mudar arquivos que precisam invalidar o cache de forma forçada, incremente `CACHE` em `public/sw.js`.
