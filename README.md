@@ -34,12 +34,13 @@ Funciona como app instalável (PWA) e abre offline depois da primeira visita.
 - PWA: instalável e offline.
 
 ## Tecnologias
-React 19, Vite, TypeScript, Vitest e oxlint. Sem backend: tudo roda no navegador e é publicado como arquivos estáticos.
+React 19, Vite, TypeScript, Vitest e oxlint. Os jogos rodam no navegador. O modo online do Adivinhaí usa um Worker do Cloudflare com Durable Objects (uma sala por código) e WebSocket; o resto é publicado como arquivos estáticos.
 
 ## Desenvolvimento
 ```bash
 npm install
-npm run dev      # servidor local
+npm run dev      # servidor local (o modo online precisa também de `npm run dev:api`)
+npm run dev:api  # Worker das salas em http://localhost:8787 (rode `npm run build` antes)
 npm test         # testes (vitest)
 npm run lint     # oxlint
 npm run build    # gera dist/
@@ -52,7 +53,9 @@ src/
   App.tsx                         home e navegação entre jogos
   components/Mascote.tsx          mascote em SVG (boas-vindas, escritor, comemorando, detetive)
   games/adivinhai/
-    motor.ts                      regras do jogo (função pura, reaproveitável no online)
+    motor.ts                      regras do jogo (função pura, usada no navegador e no servidor)
+    visao.ts                      o que o jogador pode ver (sem a resposta), usado no online
+    TelaPartida.tsx               tela da partida (local e online)
     bots.ts                       decisões dos bots (calibradas por simulação)
     sons.ts                       efeitos sonoros com WebAudio
     palpite.ts                    conferência de palpites (sem acento, tolerante a erros)
@@ -66,6 +69,8 @@ src/
     banco.ts, data/               banco de palavras
     progresso.ts                  preferências, histórico e estatísticas (localStorage)
     gerador.test.ts               testes do gerador e do banco
+worker/index.ts                   Worker + Durable Object das salas online
+  games/adivinhai/online/           protocolo (compartilhado), hook de conexão e telas da sala
 public/                           manifesto, service worker, favicon e ícones
 design/                           fontes do ícone e script que gera os PNGs
 ```
@@ -113,5 +118,12 @@ O repositório está conectado ao Cloudflare: um push na branch `main` dispara o
 - Se uma atualização não aparecer nos aparelhos, incremente `CACHE` em `public/sw.js`.
 - Para regenerar os ícones PNG: `python3 design/gerar-icones.py public`.
 
+## Modo online (em construção)
+- **Etapa 1 (pronta):** criar sala (código de 4 letras), entrar pelo link `/sala/ABCD`, lista de jogadores em tempo real, reconexão automática e anfitrião.
+- **Etapa 2 (pronta):** o anfitrião escolhe a dificuldade e inicia (mínimo de 2 jogadores). A partida roda no Durable Object com o mesmo `motor.ts`; o navegador só recebe a `Visao` (`visao.ts`): categoria, pistas já escolhidas e, no fim da rodada, a resposta. As jogadas são validadas no servidor (só joga quem está na vez). Quem sai no meio da partida pode voltar pelo link; novos jogadores não entram depois do início. No fim, o anfitrião volta todos à sala para outra partida.
+- **Etapa 3 (a fazer):** timer de vez (hoje a partida espera quem estiver offline), bots completando a sala e acabamento.
+
+Salas ficam em Durable Objects (SQLite, plano gratuito) e somem após 6 h sem ninguém conectado. As cartas já usadas na sala são lembradas no servidor.
+
 ## Ideias futuras
-Modo online do Adivinhaí (salas por link com Durable Objects do Cloudflare), mais cartas, teclado virtual nas palavras cruzadas, salvar partida em andamento, botão de compartilhar o resultado e novos jogos (caça-palavras e forca já têm cartão "Em breve" na home).
+Mais cartas, teclado virtual nas palavras cruzadas, salvar partida em andamento, botão de compartilhar o resultado e novos jogos (caça-palavras e forca já têm cartão "Em breve" na home).

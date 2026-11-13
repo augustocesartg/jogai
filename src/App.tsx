@@ -10,10 +10,11 @@ const EM_BREVE = [
 ]
 
 export default function App() {
-  const [jogo, setJogo] = useState<string | null>(null)
+  const [salaInicial] = useState(() => location.pathname.match(/^\/sala\/([A-Z0-9]{4})$/)?.[1])
+  const [jogo, setJogo] = useState<string | null>(salaInicial ? 'adivinhai' : null)
 
   if (jogo === 'cruzadas') return <PalavrasCruzadas onSair={() => setJogo(null)} />
-  if (jogo === 'adivinhai') return <Adivinhai onSair={() => setJogo(null)} />
+  if (jogo === 'adivinhai') return <Adivinhai onSair={() => setJogo(null)} salaInicial={salaInicial} />
   return <Home onJogar={setJogo} />
 }
 

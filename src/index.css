@@ -307,3 +307,13 @@ body {
   width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--borda); background: var(--card);
   font-size: 1.1rem; line-height: 1; display: grid; place-items: center;
 }
+
+.adv-config .adv-erro { color: #B91C1C; font-weight: 600; margin: 12px 0; }
+.adv-codigo { display: flex; gap: 8px; }
+.adv-codigo input { flex: 1; min-width: 0; font-size: 1.4rem; letter-spacing: 0.3em; text-align: center; text-transform: uppercase; font-weight: 700; }
+.adv-lista-sala { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.adv-lista-sala li { display: flex; align-items: center; gap: 8px; background: #fff; border: 2px solid #E0E7FF; border-radius: 12px; padding: 10px 12px; color: #1F2430; }
+.adv-lista-sala small { color: #6B7280; }
+.adv-lista-sala li.off { opacity: 0.55; }
+.adv-lista-sala .ponto { width: 10px; height: 10px; border-radius: 50%; background: #22C55E; flex: none; }
+.adv-lista-sala li.off .ponto { background: #9CA3AF; }

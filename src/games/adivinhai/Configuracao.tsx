@@ -11,10 +11,11 @@ const NIVEIS: { id: NivelBot; nome: string }[] = [
 
 interface Props {
   onJogar: (c: ConfigAdivinhai) => void
+  onOnline: (nome: string) => void
   onSair: () => void
 }
 
-export function Configuracao({ onJogar, onSair }: Props) {
+export function Configuracao({ onJogar, onOnline, onSair }: Props) {
   const [config, setConfig] = useState<ConfigAdivinhai>(lerConfig)
   const atualizar = (parcial: Partial<ConfigAdivinhai>) => setConfig((c) => ({ ...c, ...parcial }))
 
@@ -22,6 +23,12 @@ export function Configuracao({ onJogar, onSair }: Props) {
     const final = { ...config, nome: config.nome.trim() || 'Você' }
     gravarConfig(final)
     onJogar(final)
+  }
+
+  function online() {
+    const nome = config.nome.trim() || 'Você'
+    gravarConfig({ ...config, nome })
+    onOnline(nome)
   }
 
   return (
@@ -73,6 +80,7 @@ export function Configuracao({ onJogar, onSair }: Props) {
       </div>
 
       <button className="primario adv-jogar" onClick={jogar}>Jogar</button>
+      <button className="secundario" onClick={online}>🌐 Jogar online com amigos</button>
 
       <details className="adv-regras">
         <summary>Como jogar</summary>

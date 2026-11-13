@@ -1,6 +1,6 @@
 // Service worker do Jogaí: o app todo funciona offline depois da primeira visita.
 // Estratégia: stale-while-revalidate para arquivos do próprio site; navegação cai no index.html em cache.
-const CACHE = 'jogai-v2'
+const CACHE = 'jogai-v3'
 const BASE = ['/', '/favicon.svg', '/manifest.webmanifest', '/icon-192.png']
 
 // Guarda a página e também os JS/CSS com hash que ela referencia, para funcionar offline
@@ -31,6 +31,7 @@ self.addEventListener('fetch', (e) => {
   const req = e.request
   const url = new URL(req.url)
   if (req.method !== 'GET' || url.origin !== self.location.origin) return
+  if (url.pathname.startsWith('/api/')) return
 
   e.respondWith(
     caches.open(CACHE).then(async (cache) => {

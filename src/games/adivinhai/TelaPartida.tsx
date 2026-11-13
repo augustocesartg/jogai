@@ -1,0 +1,318 @@
+import { useEffect, useRef, useState } from 'react'
+import { Mascote } from '../../components/Mascote'
+import { TEXTO_COMANDO } from './motor'
+import { definirSom, somLigado, tocar, type Som } from './sons'
+import { Tabuleiro, type Peao } from './Tabuleiro'
+import { CATEGORIAS, CASAS, TOTAL_ITENS, type Acao } from './types'
+import type { Visao } from './visao'
+
+interface Aviso {
+  id: number
+  icone: string
+  texto: string
+  detalhe?: string
+  tom: 'ok' | 'ruim' | 'comando' | 'info'
+  ms: number
+}
+
+/** Sons correspondentes à transição de estado (eventos, pista revelada e fim de partida). */
+function sonsDe(antes: Visao, depois: Visao, eu: number): Som[] {
+  const lista: Som[] = []
+  if (depois.seq === antes.seq) {
+    if (antes.rodada.fase === 'escolher' && depois.rodada.fase === 'palpitar') lista.push('pista')
+  } else {
+    for (const ev of depois.eventos) {
+      if (ev.tipo === 'comando') lista.push(ev.comando)
+      else if (ev.tipo === 'erro') lista.push(ev.passou ? 'passou' : 'erro')
+      else if (ev.tipo === 'acerto') lista.push('acerto')
+      else if (ev.tipo === 'esgotou') lista.push('esgotou')
+      else lista.push('rodada')
+    }
+  }
+  if (depois.vencedor !== null && antes.vencedor === null) lista.push(depois.vencedor === eu ? 'vitoria' : 'derrota')
+  return lista
+}
+
+/** Transforma os eventos da última ação em avisos que saltam na tela. */
+function avisosDe(e: Visao, eu: number, proximoId: () => number): Aviso[] {
+  const quem = (i: number) => (i === eu ? 'Você' : e.jogadores[i].nome)
+  const lista: Omit<Aviso, 'id'>[] = e.eventos.map((ev) => {
+    if (ev.tipo === 'comando') {
+      const n = quem(ev.jogador)
+      if (ev.comando === 'perca') return { icone: '⏸️', texto: `${n} perde a vez!`, detalhe: 'Mediador +1', tom: 'ruim', ms: 1800 }
+      if (ev.comando === 'avance2') return { icone: '⏩', texto: `${n} avança 2 casas!`, detalhe: 'Mediador +1', tom: 'ok', ms: 1800 }
+      if (ev.comando === 'volte1') return { icone: '⏪', texto: `${n} volta 1 casa!`, detalhe: 'Mediador +1', tom: 'ruim', ms: 1800 }
+      return { icone: '🔁', texto: `${n} escolhe outro número!`, detalhe: 'Mediador +1', tom: 'comando', ms: 1800 }
+    }
+    if (ev.tipo === 'acerto') return { icone: '🎉', texto: `${quem(ev.jogador)} acertou!`, detalhe: `+${ev.casas} casas`, tom: 'ok', ms: 2300 }
+    if (ev.tipo === 'erro') {
+      return { icone: ev.passou ? '🙈' : '❌', texto: `${quem(ev.jogador)} ${ev.passou ? 'passou' : 'errou'}`, detalhe: 'Mediador +1', tom: 'ruim', ms: 1500 }
+    }
+    if (ev.tipo === 'esgotou') return { icone: '⏰', texto: 'As 20 pistas acabaram!', detalhe: 'Ninguém acertou', tom: 'ruim', ms: 2100 }
+    const cat = CATEGORIAS.find((c) => c.id === e.rodada.categoria)!
+    return { icone: '🃏', texto: `Rodada ${ev.numero}`, detalhe: `${cat.emoji} ${cat.nome}`, tom: 'info', ms: 1700 }
+  })
+  return lista.map((a) => ({ ...a, id: proximoId() }))
+}
+
+const COR_MEDIADOR = '#374151'
+
+interface Props {
+  visao: Visao
+  /** índice do jogador que está nesta tela */
+  eu: number
+  agir: (a: Acao) => void
+  /** botão do fim da partida; null = quem decide é outra pessoa (mostra `esperaNova`) */
+  onNova: (() => void) | null
+  esperaNova?: string
+  onSair: () => void
+  rotuloSair?: string
+  /** rodapé extra (ex.: aviso de conexão) */
+  extra?: React.ReactNode
+}
+
+export function TelaPartida({ visao: estado, eu, agir, onNova, esperaNova, onSair, rotuloSair = '← Sair', extra }: Props) {
+  const [resumoFechado, setResumoFechado] = useState(false)
+  const [avisos, setAvisos] = useState<Aviso[]>([])
+  const [festa, setFesta] = useState(false)
+  const [som, setSom] = useState(somLigado)
+  const contadorAviso = useRef(0)
+  const anterior = useRef(estado)
+
+  // sons, avisos e vibração a cada mudança de estado, venha ela de um bot local ou do servidor
+  useEffect(() => {
+    const antes = anterior.current
+    anterior.current = estado
+    if (antes === estado) return
+    const sons = sonsDe(antes, estado, eu)
+    if (sons.length > 0) tocar(sons)
+    if (estado.seq === antes.seq) return
+    if (estado.eventos.some((ev) => ev.tipo === 'acerto' && ev.jogador === eu)) {
+      // oxlint-disable-next-line react/set-state-in-effect -- reação a um evento externo (jogada), não dá para derivar na renderização
+      setFesta(true)
+      setTimeout(() => setFesta(false), 2400)
+    }
+    const novos = avisosDe(estado, eu, () => ++contadorAviso.current)
+    setAvisos((atual) => [...atual, ...novos].slice(-3))
+    for (const n of novos) setTimeout(() => setAvisos((atual) => atual.filter((x) => x.id !== n.id)), n.ms)
+    const meu = estado.eventos.some((ev) => 'jogador' in ev && ev.jogador === eu && (ev.tipo === 'acerto' || ev.tipo === 'comando'))
+    if (meu && typeof navigator.vibrate === 'function') navigator.vibrate(70)
+  }, [estado, eu])
+
+  const r = estado.rodada
+  const jogador = estado.jogadores[r.vez]
+  const minhaVez = r.vez === eu && estado.vencedor === null
+
+  const categoria = CATEGORIAS.find((c) => c.id === r.categoria)!
+  const peoes: Peao[] = [
+    ...estado.jogadores.map((j) => ({ id: j.id, rotulo: j.nome[0].toUpperCase(), cor: j.cor, pos: j.pos, nome: j.nome })),
+    { id: 'mediador', rotulo: 'M', cor: COR_MEDIADOR, pos: estado.mediador, nome: 'Mediador' },
+  ]
+
+  const pistaAtual = r.atual !== null ? r.itens[r.atual - 1] : null
+  const nomeVencedor =
+    estado.vencedor === null ? '' : estado.vencedor === 'mediador' ? 'O Mediador' : estado.jogadores[estado.vencedor].nome
+  const euVenci = estado.vencedor === eu
+
+  return (
+    <main className="jogo adv-jogo">
+      <header className="barra">
+        <button className="voltar" onClick={onSair}>{rotuloSair}</button>
+        <span className="adv-rodada">Rodada {estado.rodadaNum}</span>
+        <button
+          className="adv-som"
+          aria-label={som ? 'Desligar o som' : 'Ligar o som'}
+          aria-pressed={som}
+          onClick={() => {
+            definirSom(!som)
+            setSom(!som)
+          }}
+        >
+          {som ? '🔊' : '🔇'}
+        </button>
+        <span className="adv-categoria">{categoria.emoji} {categoria.nome}</span>
+      </header>
+
+      <Tabuleiro peoes={peoes} />
+
+      <div className="adv-avisos" role="status" aria-live="assertive">
+        {avisos.map((a) => (
+          <div key={a.id} className={`adv-aviso tom-${a.tom}`} style={{ animationDuration: `${a.ms}ms` }}>
+            <span className="adv-aviso-icone" aria-hidden="true">{a.icone}</span>
+            <span>
+              <strong>{a.texto}</strong>
+              {a.detalhe && <small>{a.detalhe}</small>}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <ul className="adv-placar" aria-label="Placar">
+        {estado.jogadores.map((j, i) => (
+          <li key={`${j.id}:${j.pos}`} className={(r.vez === i && r.fase !== 'fim' ? 'vez' : '') + (j.pos > 0 ? ' pulso' : '')}>
+            <span className="adv-ponto" style={{ background: j.cor }} />
+            {j.nome}{j.bot ? ' 🤖' : ''}{i === eu && eu > 0 && j.nome !== 'Você' ? ' (você)' : ''} <b>{Math.min(j.pos, CASAS)}</b>
+          </li>
+        ))}
+        <li key={`mediador:${estado.mediador}`} className={estado.mediador > 0 ? 'pulso' : ''}>
+          <span className="adv-ponto" style={{ background: COR_MEDIADOR }} />
+          Mediador <b>{Math.min(estado.mediador, CASAS)}</b>
+        </li>
+      </ul>
+
+      <section className="adv-painel" aria-live="polite">
+        <Mascote className="adv-mascote" pose={festa ? 'comemorando' : 'detetive'} tamanho={66} />
+        {r.fase === 'escolher' && (
+          <>
+            <h2>{minhaVez ? 'Sua vez! Escolha um número' : `${jogador.nome} está escolhendo…`}</h2>
+            <div className="adv-numeros">
+              {Array.from({ length: TOTAL_ITENS }, (_, i) => i + 1).map((n) => {
+                const usado = r.usados.includes(n)
+                return (
+                  <button
+                    key={n}
+                    className={usado ? 'usado' : ''}
+                    disabled={usado || !minhaVez}
+                    onClick={() => agir({ tipo: 'escolher', numero: n })}
+                  >
+                    {n}
+                  </button>
+                )
+              })}
+            </div>
+          </>
+        )}
+
+        {r.fase === 'palpitar' && pistaAtual?.tipo === 'pista' && (
+          <>
+            <h2>Pista {r.atual}</h2>
+            <p className="adv-pista" key={`pista-${estado.rodadaNum}-${r.atual}`}>{pistaAtual.texto}</p>
+            {minhaVez ? (
+              <FormPalpite
+                key={`palpite-${estado.rodadaNum}-${r.usados.length}`}
+                numerico={r.categoria === 'ano'}
+                onPalpite={(texto) => agir({ tipo: 'palpitar', texto })}
+                onPassar={() => agir({ tipo: 'passar' })}
+              />
+            ) : (
+              <p className="adv-espera">{jogador.nome} está pensando…</p>
+            )}
+          </>
+        )}
+
+        {r.fase === 'fim' && (
+          <>
+            <p className="adv-resposta-rotulo">A resposta era</p>
+            <p className="adv-resposta">{r.resposta}</p>
+            {r.resultado?.tipo === 'acerto' && (
+              <p className="adv-resultado ok">
+                {estado.jogadores[r.resultado.jogador].nome} acertou e avança {r.resultado.casas} casas!
+              </p>
+            )}
+            {r.resultado?.tipo === 'esgotou' && (
+              <p className="adv-resultado">As 20 pistas acabaram e ninguém acertou. O Mediador agradece!</p>
+            )}
+            {estado.vencedor === null && (
+              <button className="primario" onClick={() => agir({ tipo: 'proxima' })}>Próxima rodada</button>
+            )}
+          </>
+        )}
+      </section>
+
+      {r.usados.length > 0 && r.fase !== 'fim' && (
+        <section className="adv-reveladas">
+          <h3>Pistas reveladas</h3>
+          <ol>
+            {[...r.usados].reverse().map((n) => {
+              const item = r.itens[n - 1]
+              if (!item) return null
+              return (
+                <li key={n} className={item.tipo === 'comando' ? 'comando' : ''}>
+                  <b>{n}</b>{' '}
+                  {item.tipo === 'pista' ? item.texto : `🎲 ${TEXTO_COMANDO[item.comando]}`}
+                </li>
+              )
+            })}
+          </ol>
+        </section>
+      )}
+
+      <section className="adv-historico">
+        <h3>Últimas jogadas</h3>
+        <ul>
+          {[...estado.historico].reverse().slice(0, 5).map((h, i) => (
+            <li key={`${estado.historico.length - i}`}>{h}</li>
+          ))}
+          {estado.historico.length === 0 && <li>A partida começou. Boa sorte!</li>}
+        </ul>
+      </section>
+
+      {estado.vencedor !== null && !resumoFechado && (
+        <div className="vitoria-fundo" role="dialog" aria-modal="true" aria-label="Fim da partida">
+          <div className="vitoria-tela">
+            <Mascote pose={euVenci ? 'comemorando' : 'detetive'} tamanho={150} />
+            <h2>{euVenci ? 'Você venceu!' : `${nomeVencedor} venceu!`}</h2>
+            <p>{euVenci ? 'Mandou bem nas pistas.' : estado.vencedor === 'mediador' ? 'Dessa vez o Mediador levou.' : 'Boa partida!'}</p>
+            <ul className="adv-final">
+              {[
+                ...estado.jogadores.map((j) => ({ nome: j.nome, pos: j.pos, cor: j.cor })),
+                { nome: 'Mediador', pos: estado.mediador, cor: COR_MEDIADOR },
+              ]
+                .sort((a, b) => b.pos - a.pos)
+                .map((p) => (
+                  <li key={p.nome}>
+                    <span className="adv-ponto" style={{ background: p.cor }} />
+                    {p.nome} <b>{Math.min(p.pos, CASAS)}</b>
+                  </li>
+                ))}
+            </ul>
+            {onNova ? (
+              <button className="primario" onClick={onNova}>Jogar de novo</button>
+            ) : (
+              <p className="adv-espera">{esperaNova}</p>
+            )}
+            <button className="secundario" onClick={() => setResumoFechado(true)}>Ver tabuleiro</button>
+            <button className="voltar" onClick={onSair}>Sair</button>
+          </div>
+        </div>
+      )}
+      {extra}
+    </main>
+  )
+}
+
+function FormPalpite({
+  numerico,
+  onPalpite,
+  onPassar,
+}: {
+  numerico: boolean
+  onPalpite: (texto: string) => void
+  onPassar: () => void
+}) {
+  const [texto, setTexto] = useState('')
+  return (
+    <form
+      className="adv-form"
+      onSubmit={(e) => {
+        e.preventDefault()
+        if (texto.trim()) onPalpite(texto)
+      }}
+    >
+      <input
+        autoFocus
+        value={texto}
+        onChange={(e) => setTexto(e.target.value)}
+        placeholder={numerico ? 'Qual é o ano?' : 'Qual é o seu palpite?'}
+        inputMode={numerico ? 'numeric' : 'text'}
+        autoComplete="off"
+        autoCapitalize="sentences"
+        aria-label="Seu palpite"
+      />
+      <div className="adv-form-botoes">
+        <button type="submit" className="primario" disabled={!texto.trim()}>Palpitar</button>
+        <button type="button" className="secundario" onClick={onPassar}>Passar</button>
+      </div>
+    </form>
+  )
+}
