@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Mascote } from '../../components/Mascote'
 import { jogadaBot } from './bots'
 import { CARTAS } from './cartas'
@@ -7,6 +7,37 @@ import type { ConfigAdivinhai } from './progresso'
 import { criarRng } from './rng'
 import { Tabuleiro, type Peao } from './Tabuleiro'
 import { CATEGORIAS, CASAS, TOTAL_ITENS, type Acao, type Estado } from './types'
+
+interface Aviso {
+  id: number
+  icone: string
+  texto: string
+  detalhe?: string
+  tom: 'ok' | 'ruim' | 'comando' | 'info'
+  ms: number
+}
+
+/** Transforma os eventos da última ação em avisos que saltam na tela. */
+function avisosDe(e: Estado, proximoId: () => number): Aviso[] {
+  const quem = (i: number) => (i === 0 ? 'Você' : e.jogadores[i].nome)
+  const lista: Omit<Aviso, 'id'>[] = e.eventos.map((ev) => {
+    if (ev.tipo === 'comando') {
+      const n = quem(ev.jogador)
+      if (ev.comando === 'perca') return { icone: '⏸️', texto: `${n} perde a vez!`, detalhe: 'Mediador +1', tom: 'ruim', ms: 1800 }
+      if (ev.comando === 'avance2') return { icone: '⏩', texto: `${n} avança 2 casas!`, detalhe: 'Mediador +1', tom: 'ok', ms: 1800 }
+      if (ev.comando === 'volte1') return { icone: '⏪', texto: `${n} volta 1 casa!`, detalhe: 'Mediador +1', tom: 'ruim', ms: 1800 }
+      return { icone: '🔁', texto: `${n} escolhe outro número!`, detalhe: 'Mediador +1', tom: 'comando', ms: 1800 }
+    }
+    if (ev.tipo === 'acerto') return { icone: '🎉', texto: `${quem(ev.jogador)} acertou!`, detalhe: `+${ev.casas} casas`, tom: 'ok', ms: 2300 }
+    if (ev.tipo === 'erro') {
+      return { icone: ev.passou ? '🙈' : '❌', texto: `${quem(ev.jogador)} ${ev.passou ? 'passou' : 'errou'}`, detalhe: 'Mediador +1', tom: 'ruim', ms: 1500 }
+    }
+    if (ev.tipo === 'esgotou') return { icone: '⏰', texto: 'As 20 pistas acabaram!', detalhe: 'Ninguém acertou', tom: 'ruim', ms: 2100 }
+    const cat = CATEGORIAS.find((c) => c.id === e.rodada.carta.categoria)!
+    return { icone: '🃏', texto: `Rodada ${ev.numero}`, detalhe: `${cat.emoji} ${cat.nome}`, tom: 'info', ms: 1700 }
+  })
+  return lista.map((a) => ({ ...a, id: proximoId() }))
+}
 
 const NOMES_BOTS = ['Ana', 'Beto', 'Carla', 'Davi', 'Eva']
 const COR_MEDIADOR = '#374151'
@@ -32,7 +63,26 @@ export function Partida({ config, onNova, onConfig }: Props) {
   const [estado, setEstado] = useState<Estado>(inicial)
   const [resumoFechado, setResumoFechado] = useState(false)
 
-  const agir = (a: Acao) => setEstado((e) => aplicar(e, a, CARTAS, rng))
+  const estadoRef = useRef<Estado>(inicial)
+  const [avisos, setAvisos] = useState<Aviso[]>([])
+  const contadorAviso = useRef(0)
+
+  const executar = useCallback(
+    (a: Acao) => {
+      const antes = estadoRef.current
+      const depois = aplicar(antes, a, CARTAS, rng)
+      estadoRef.current = depois
+      setEstado(depois)
+      if (depois.seq === antes.seq) return
+      const novos = avisosDe(depois, () => ++contadorAviso.current)
+      setAvisos((atual) => [...atual, ...novos].slice(-3))
+      for (const n of novos) setTimeout(() => setAvisos((atual) => atual.filter((x) => x.id !== n.id)), n.ms)
+      const meu = depois.eventos.some((ev) => 'jogador' in ev && ev.jogador === 0 && (ev.tipo === 'acerto' || ev.tipo === 'comando'))
+      if (meu && typeof navigator.vibrate === 'function') navigator.vibrate(70)
+    },
+    [rng],
+  )
+  const agir = executar
 
   const r = estado.rodada
   const jogador = estado.jogadores[r.vez]
@@ -41,9 +91,9 @@ export function Partida({ config, onNova, onConfig }: Props) {
   // jogada automática dos bots, com uma pausa para dar para acompanhar
   useEffect(() => {
     if (estado.vencedor !== null || r.fase === 'fim' || jogador.bot === null) return
-    const t = setTimeout(() => setEstado((e) => aplicar(e, jogadaBot(e, rng), CARTAS, rng)), 1000 + rng() * 700)
+    const t = setTimeout(() => executar(jogadaBot(estadoRef.current, rng)), 1000 + rng() * 700)
     return () => clearTimeout(t)
-  }, [estado, r.fase, jogador.bot, rng])
+  }, [estado, r.fase, jogador.bot, rng, executar])
 
   const categoria = CATEGORIAS.find((c) => c.id === r.carta.categoria)!
   const peoes: Peao[] = [
@@ -66,14 +116,26 @@ export function Partida({ config, onNova, onConfig }: Props) {
 
       <Tabuleiro peoes={peoes} />
 
+      <div className="adv-avisos" role="status" aria-live="assertive">
+        {avisos.map((a) => (
+          <div key={a.id} className={`adv-aviso tom-${a.tom}`} style={{ animationDuration: `${a.ms}ms` }}>
+            <span className="adv-aviso-icone" aria-hidden="true">{a.icone}</span>
+            <span>
+              <strong>{a.texto}</strong>
+              {a.detalhe && <small>{a.detalhe}</small>}
+            </span>
+          </div>
+        ))}
+      </div>
+
       <ul className="adv-placar" aria-label="Placar">
         {estado.jogadores.map((j, i) => (
-          <li key={j.id} className={r.vez === i && r.fase !== 'fim' ? 'vez' : ''}>
+          <li key={`${j.id}:${j.pos}`} className={(r.vez === i && r.fase !== 'fim' ? 'vez' : '') + (j.pos > 0 ? ' pulso' : '')}>
             <span className="adv-ponto" style={{ background: j.cor }} />
             {j.nome}{j.bot ? ' 🤖' : ''} <b>{Math.min(j.pos, CASAS)}</b>
           </li>
         ))}
-        <li>
+        <li key={`mediador:${estado.mediador}`} className={estado.mediador > 0 ? 'pulso' : ''}>
           <span className="adv-ponto" style={{ background: COR_MEDIADOR }} />
           Mediador <b>{Math.min(estado.mediador, CASAS)}</b>
         </li>
@@ -104,7 +166,7 @@ export function Partida({ config, onNova, onConfig }: Props) {
         {r.fase === 'palpitar' && pistaAtual?.tipo === 'pista' && (
           <>
             <h2>Pista {r.atual}</h2>
-            <p className="adv-pista">{pistaAtual.texto}</p>
+            <p className="adv-pista" key={`${estado.rodadaNum}-${r.atual}`}>{pistaAtual.texto}</p>
             {minhaVez ? (
               <FormPalpite
                 key={`${estado.rodadaNum}-${r.usados.length}`}

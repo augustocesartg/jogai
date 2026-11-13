@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Mascote } from '../../components/Mascote'
 import { gravarConfig, lerConfig, type ConfigAdivinhai } from './progresso'
-import type { NivelBot } from './types'
+import { CASAS, type NivelBot } from './types'
 
 const NIVEIS: { id: NivelBot; nome: string }[] = [
   { id: 'facil', nome: 'Fácil' },
@@ -81,7 +81,7 @@ export function Configuracao({ onJogar, onSair }: Props) {
           <li>Quem acerta avança <b>20 − pistas usadas</b> casas. Menos pistas, mais casas!</li>
           <li>O <b>Mediador</b> também tem um peão e avança 1 casa a cada pista que não leva ao acerto.</li>
           <li>Alguns números escondem comandos: perca a vez, avance 2, volte 1 ou escolha outro número.</li>
-          <li>Quem chegar à casa 30 primeiro vence, jogador ou Mediador.</li>
+          <li>Quem chegar à casa {CASAS} primeiro vence, jogador ou Mediador.</li>
         </ul>
       </details>
     </main>

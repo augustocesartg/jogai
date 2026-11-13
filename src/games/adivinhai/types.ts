@@ -64,6 +64,14 @@ export interface Rodada {
   resultado: Resultado | null
 }
 
+/** Fatos da última ação, para a interface animar (avisos, vibração etc.). */
+export type Evento =
+  | { tipo: 'comando'; comando: Comando; jogador: number }
+  | { tipo: 'acerto'; jogador: number; casas: number }
+  | { tipo: 'erro'; jogador: number; passou: boolean }
+  | { tipo: 'esgotou' }
+  | { tipo: 'rodada'; numero: number }
+
 export interface Estado {
   jogadores: Jogador[]
   mediador: number
@@ -75,6 +83,10 @@ export interface Estado {
   /** 'mediador', o índice do jogador, ou null enquanto a partida segue */
   vencedor: 'mediador' | number | null
   historico: string[]
+  /** eventos da última ação que gerou novidades na tela */
+  eventos: Evento[]
+  /** aumenta a cada ação que gera eventos */
+  seq: number
 }
 
 export type Acao =
@@ -83,5 +95,5 @@ export type Acao =
   | { tipo: 'passar' }
   | { tipo: 'proxima' }
 
-export const CASAS = 30
+export const CASAS = 40
 export const TOTAL_ITENS = 20

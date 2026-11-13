@@ -9,10 +9,11 @@ import type { NivelBot } from './types'
 describe.skipIf(!import.meta.env.VITE_SIMULAR)('simulação de equilíbrio', () => {
   it('mede duração e taxa de vitória do mediador', { timeout: 300000 }, () => {
     const cenarios: { nome: string; niveis: NivelBot[] }[] = [
+      { nome: '1 bot fácil (solo)', niveis: ['facil'] },
       { nome: '1 bot médio (solo)', niveis: ['medio'] },
       { nome: '1 bot difícil (solo)', niveis: ['dificil'] },
-      { nome: '1 bot fácil (solo)', niveis: ['facil'] },
       { nome: '2 bots médios', niveis: ['medio', 'medio'] },
+      { nome: '2 bots difíceis', niveis: ['dificil', 'dificil'] },
       { nome: '4 bots médios', niveis: ['medio', 'medio', 'medio', 'medio'] },
       { nome: '6 bots médios', niveis: ['medio', 'medio', 'medio', 'medio', 'medio', 'medio'] },
     ]

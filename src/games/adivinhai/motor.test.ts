@@ -3,7 +3,7 @@ import { jogadaBot } from './bots'
 import { aplicar, criarPartida, montarItens } from './motor'
 import { conferirPalpite } from './palpite'
 import { criarRng } from './rng'
-import type { Carta, Estado, Item } from './types'
+import { CASAS, type Carta, type Estado, type Item } from './types'
 
 function carta(id: string, resposta: string, extra: Partial<Carta> = {}): Carta {
   return {
@@ -164,9 +164,9 @@ describe('regras do jogo', () => {
     expect(e.mediador).toBe(20)
   })
 
-  it('chegar à casa 30 vence na hora', () => {
+  it('chegar à última casa vence na hora', () => {
     let e = estadoFixo()
-    e.jogadores[0].pos = 28
+    e.jogadores[0].pos = CASAS - 2
     e = passo(e, { tipo: 'escolher', numero: 6 })
     expect(e.vencedor).toBe(0)
     expect(e.rodada.fase).toBe('fim')
@@ -174,7 +174,7 @@ describe('regras do jogo', () => {
 
   it('mediador também pode vencer', () => {
     let e = estadoFixo()
-    e.mediador = 29
+    e.mediador = CASAS - 1
     e = passo(e, { tipo: 'escolher', numero: 1 })
     e = passo(e, { tipo: 'passar' })
     expect(e.vencedor).toBe('mediador')
@@ -198,6 +198,32 @@ describe('regras do jogo', () => {
     const copia = structuredClone(e)
     passo(e, { tipo: 'escolher', numero: 1 })
     expect(e).toEqual(copia)
+  })
+})
+
+describe('eventos', () => {
+  it('comando gera evento e aumenta seq', () => {
+    let e = estadoFixo()
+    const seq = e.seq
+    e = passo(e, { tipo: 'escolher', numero: 6 })
+    expect(e.eventos).toEqual([{ tipo: 'comando', comando: 'avance2', jogador: 0 }])
+    expect(e.seq).toBe(seq + 1)
+  })
+  it('erro e acerto geram eventos', () => {
+    let e = estadoFixo()
+    e = passo(e, { tipo: 'escolher', numero: 1 })
+    e = passo(e, { tipo: 'palpitar', texto: 'errado' })
+    expect(e.eventos).toEqual([{ tipo: 'erro', jogador: 0, passou: false }])
+    e = passo(e, { tipo: 'escolher', numero: 2 })
+    e = passo(e, { tipo: 'palpitar', texto: 'Santos Dumont' })
+    expect(e.eventos).toEqual([{ tipo: 'acerto', jogador: 1, casas: 18 }])
+  })
+  it('próxima rodada gera evento de rodada', () => {
+    let e = estadoFixo()
+    e = passo(e, { tipo: 'escolher', numero: 1 })
+    e = passo(e, { tipo: 'palpitar', texto: 'Santos Dumont' })
+    e = passo(e, { tipo: 'proxima' })
+    expect(e.eventos).toEqual([{ tipo: 'rodada', numero: 2 }])
   })
 })
 

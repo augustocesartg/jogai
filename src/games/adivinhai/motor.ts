@@ -66,6 +66,8 @@ export function criarPartida(jogadores: ConfigJogador[], cartas: Carta[], rng: R
     cartasUsadas: usadas,
     vencedor: null,
     historico: [],
+    eventos: [],
+    seq: 0,
   }
 }
 
@@ -100,6 +102,7 @@ function seguir(e: Estado) {
     r.atual = null
     r.resultado = { tipo: 'esgotou' }
     log(e, `Acabaram as dicas! A resposta era ${r.carta.resposta}.`)
+    e.eventos.push({ tipo: 'esgotou' })
     return
   }
   r.vez = (r.vez + 1) % e.jogadores.length
@@ -133,6 +136,7 @@ function escolher(e: Estado, numero: number) {
   }
 
   moverMediador(e, 1)
+  e.eventos.push({ tipo: 'comando', comando: item.comando, jogador: r.vez })
   log(e, `${jogador.nome} escolheu o ${numero}: ${TEXTO_COMANDO[item.comando]}. Mediador +1.`)
   if (item.comando === 'avance2') moverJogador(e, r.vez, 2)
   if (item.comando === 'volte1') moverJogador(e, r.vez, -1)
@@ -144,6 +148,7 @@ function errou(e: Estado, passou: boolean) {
   const r = e.rodada
   const jogador = e.jogadores[r.vez]
   moverMediador(e, 1)
+  e.eventos.push({ tipo: 'erro', jogador: r.vez, passou })
   log(e, passou ? `${jogador.nome} passou. Mediador +1.` : `${jogador.nome} errou. Mediador +1.`)
   seguir(e)
 }
@@ -155,6 +160,7 @@ function palpitar(e: Estado, texto: string) {
   if (conferirPalpite(r.carta, texto)) {
     const casas = Math.max(0, TOTAL_ITENS - r.usados.length)
     r.resultado = { tipo: 'acerto', jogador: i, casas }
+    e.eventos.push({ tipo: 'acerto', jogador: i, casas })
     r.fase = 'fim'
     r.atual = null
     log(e, `${e.jogadores[i].nome} acertou: ${r.carta.resposta}! Avança ${casas} casas.`)
@@ -172,15 +178,19 @@ function proxima(e: Estado, cartas: Carta[], rng: Rng) {
   e.rodadaNum += 1
   e.inicio = (e.inicio + 1) % e.jogadores.length
   e.rodada = novaRodada(carta, e.inicio, rng)
+  e.eventos.push({ tipo: 'rodada', numero: e.rodadaNum })
 }
 
 /** Função pura: devolve um novo estado, sem alterar o recebido. */
 export function aplicar(estado: Estado, acao: Acao, cartas: Carta[], rng: Rng): Estado {
   const e = structuredClone(estado)
+  e.eventos = []
   if (acao.tipo === 'escolher') escolher(e, acao.numero)
   else if (acao.tipo === 'palpitar') palpitar(e, acao.texto)
   else if (acao.tipo === 'passar') {
     if (e.rodada.fase === 'palpitar' && e.vencedor === null) errou(e, true)
   } else proxima(e, cartas, rng)
+  if (e.eventos.length > 0) e.seq += 1
+  else e.eventos = estado.eventos
   return e
 }
