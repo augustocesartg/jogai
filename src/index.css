@@ -186,6 +186,7 @@ body {
 .adv-stepper button:disabled { opacity: 0.4; }
 .adv-stepper b { font-size: 1.5rem; min-width: 1.5em; text-align: center; }
 .adv-jogar { width: 100%; }
+.adv-config > .secundario { margin-top: 12px; }
 .adv-regras { margin-top: 22px; color: var(--suave); }
 .adv-regras summary { cursor: pointer; font-weight: 600; color: var(--texto); padding: 8px 0; }
 .adv-regras ul { padding-left: 18px; line-height: 1.5; }
@@ -310,7 +311,8 @@ body {
 
 .adv-config .adv-erro { color: #B91C1C; font-weight: 600; margin: 12px 0; }
 .adv-codigo { display: flex; gap: 8px; }
-.adv-codigo input { flex: 1; min-width: 0; font-size: 1.4rem; letter-spacing: 0.3em; text-align: center; text-transform: uppercase; font-weight: 700; }
+.adv-codigo .secundario { width: auto; flex: none; padding: 0 20px; }
+.adv-codigo input { flex: 1; min-width: 0; min-height: 56px; font-size: 1.6rem; letter-spacing: 0.3em; text-align: center; text-transform: uppercase; font-weight: 700; }
 .adv-lista-sala { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .adv-lista-sala li { display: flex; align-items: center; gap: 8px; background: #fff; border: 2px solid #E0E7FF; border-radius: 12px; padding: 10px 12px; color: #1F2430; }
 .adv-lista-sala small { color: #6B7280; }
