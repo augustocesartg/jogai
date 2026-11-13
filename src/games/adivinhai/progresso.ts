@@ -32,3 +32,23 @@ export function gravarConfig(c: ConfigAdivinhai) {
     /* sem armazenamento: segue sem persistir */
   }
 }
+
+const K_CARTAS = 'jogai:adivinhai:cartas'
+
+/** Ids das cartas já usadas, para não repetir entre partidas. */
+export function lerCartasUsadas(): string[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(K_CARTAS) ?? '[]')
+    return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+export function gravarCartasUsadas(ids: string[]) {
+  try {
+    localStorage.setItem(K_CARTAS, JSON.stringify(ids))
+  } catch {
+    /* sem armazenamento: segue sem persistir */
+  }
+}

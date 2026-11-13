@@ -4,6 +4,7 @@ import { d, f, m } from './util'
 export const digital: CartaBase[] = [
   {
     resposta: 'WhatsApp',
+    nivel: 1,
     aceitas: ['Whatsapp', 'Zap'],
     chutes: ['Telegram', 'Messenger', 'Signal'],
     pistas: [
@@ -29,6 +30,7 @@ export const digital: CartaBase[] = [
   },
   {
     resposta: 'YouTube',
+    nivel: 1,
     aceitas: ['Youtube'],
     chutes: ['Vimeo', 'TikTok', 'Twitch'],
     pistas: [
@@ -54,6 +56,7 @@ export const digital: CartaBase[] = [
   },
   {
     resposta: 'Google',
+    nivel: 1,
     aceitas: ['Google Search', 'Google Buscador'],
     chutes: ['Yahoo', 'Bing', 'Microsoft'],
     pistas: [
@@ -79,6 +82,7 @@ export const digital: CartaBase[] = [
   },
   {
     resposta: 'Wikipédia',
+    nivel: 2,
     aceitas: ['Wikipedia'],
     chutes: ['Britannica', 'Google', 'Quora'],
     pistas: [
@@ -104,6 +108,7 @@ export const digital: CartaBase[] = [
   },
   {
     resposta: 'Minecraft',
+    nivel: 1,
     aceitas: [],
     chutes: ['Roblox', 'Fortnite', 'Terraria'],
     pistas: [
@@ -129,6 +134,7 @@ export const digital: CartaBase[] = [
   },
   {
     resposta: 'Netflix',
+    nivel: 1,
     aceitas: [],
     chutes: ['Prime Video', 'Disney+', 'HBO Max'],
     pistas: [
@@ -154,6 +160,7 @@ export const digital: CartaBase[] = [
   },
   {
     resposta: 'Instagram',
+    nivel: 1,
     aceitas: ['Insta'],
     chutes: ['Facebook', 'Snapchat', 'Pinterest'],
     pistas: [
@@ -179,6 +186,7 @@ export const digital: CartaBase[] = [
   },
   {
     resposta: 'Pix',
+    nivel: 1,
     aceitas: ['PIX'],
     chutes: ['Boleto', 'TED', 'Cartão de crédito'],
     pistas: [
@@ -204,6 +212,7 @@ export const digital: CartaBase[] = [
   },
   {
     resposta: 'Bitcoin',
+    nivel: 2,
     aceitas: ['BTC'],
     chutes: ['Ethereum', 'Dogecoin', 'Real'],
     pistas: [
@@ -229,6 +238,7 @@ export const digital: CartaBase[] = [
   },
   {
     resposta: 'Tetris',
+    nivel: 2,
     aceitas: [],
     chutes: ['Pac-Man', 'Snake', 'Candy Crush'],
     pistas: [

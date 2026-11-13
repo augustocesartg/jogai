@@ -4,6 +4,7 @@ import { d, f, m } from './util'
 export const pessoa: CartaBase[] = [
   {
     resposta: 'Santos Dumont',
+    nivel: 1,
     aceitas: ['Alberto Santos Dumont'],
     chutes: ['Irmãos Wright', 'Dom Pedro II', 'Leonardo da Vinci'],
     pistas: [
@@ -29,6 +30,7 @@ export const pessoa: CartaBase[] = [
   },
   {
     resposta: 'Pelé',
+    nivel: 1,
     aceitas: ['Edson Arantes do Nascimento', 'Rei Pelé'],
     chutes: ['Garrincha', 'Maradona', 'Ronaldo'],
     pistas: [
@@ -54,6 +56,7 @@ export const pessoa: CartaBase[] = [
   },
   {
     resposta: 'Albert Einstein',
+    nivel: 1,
     aceitas: ['Einstein'],
     chutes: ['Isaac Newton', 'Nikola Tesla', 'Stephen Hawking'],
     pistas: [
@@ -79,6 +82,7 @@ export const pessoa: CartaBase[] = [
   },
   {
     resposta: 'Leonardo da Vinci',
+    nivel: 1,
     aceitas: ['Da Vinci', 'Leonardo'],
     chutes: ['Michelangelo', 'Rafael', 'Botticelli'],
     pistas: [
@@ -104,6 +108,7 @@ export const pessoa: CartaBase[] = [
   },
   {
     resposta: 'Marie Curie',
+    nivel: 2,
     aceitas: ['Madame Curie', 'Maria Curie'],
     chutes: ['Rosalind Franklin', 'Ada Lovelace', 'Florence Nightingale'],
     pistas: [
@@ -129,6 +134,7 @@ export const pessoa: CartaBase[] = [
   },
   {
     resposta: 'Machado de Assis',
+    nivel: 2,
     aceitas: ['Machado'],
     chutes: ['José de Alencar', 'Graciliano Ramos', 'Lima Barreto'],
     pistas: [
@@ -154,6 +160,7 @@ export const pessoa: CartaBase[] = [
   },
   {
     resposta: 'Napoleão Bonaparte',
+    nivel: 1,
     aceitas: ['Napoleão', 'Napoleon'],
     chutes: ['Luís XIV', 'Júlio César', 'Carlos Magno'],
     pistas: [
@@ -179,6 +186,7 @@ export const pessoa: CartaBase[] = [
   },
   {
     resposta: 'Cleópatra',
+    nivel: 2,
     aceitas: ['Cleópatra VII', 'Cleopatra'],
     chutes: ['Nefertiti', 'Hatshepsut', 'Tutancâmon'],
     pistas: [
@@ -204,6 +212,7 @@ export const pessoa: CartaBase[] = [
   },
   {
     resposta: 'Ayrton Senna',
+    nivel: 1,
     aceitas: ['Senna'],
     chutes: ['Nelson Piquet', 'Emerson Fittipaldi', 'Rubens Barrichello'],
     pistas: [
@@ -229,6 +238,7 @@ export const pessoa: CartaBase[] = [
   },
   {
     resposta: 'Frida Kahlo',
+    nivel: 2,
     aceitas: ['Frida'],
     chutes: ['Tarsila do Amaral', "Georgia O'Keeffe", 'Diego Rivera'],
     pistas: [

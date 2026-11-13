@@ -4,6 +4,7 @@ import { d, f, m } from './util'
 export const ano: CartaBase[] = [
   {
     resposta: '1500',
+    nivel: 1,
     chutes: ['1492', '1530', '1822'],
     pistas: [
       f('Foi o ano em que os portugueses chegaram ao Brasil.'),
@@ -28,6 +29,7 @@ export const ano: CartaBase[] = [
   },
   {
     resposta: '1789',
+    nivel: 2,
     chutes: ['1776', '1822', '1815'],
     pistas: [
       f('Foi o ano em que começou a Revolução Francesa.'),
@@ -52,6 +54,7 @@ export const ano: CartaBase[] = [
   },
   {
     resposta: '1822',
+    nivel: 1,
     chutes: ['1808', '1889', '1500'],
     pistas: [
       f('Foi o ano da Independência do Brasil.'),
@@ -76,6 +79,7 @@ export const ano: CartaBase[] = [
   },
   {
     resposta: '1888',
+    nivel: 2,
     chutes: ['1889', '1822', '1871'],
     pistas: [
       f('Foi o ano em que a escravidão foi abolida no Brasil.'),
@@ -100,6 +104,7 @@ export const ano: CartaBase[] = [
   },
   {
     resposta: '1889',
+    nivel: 2,
     chutes: ['1888', '1822', '1930'],
     pistas: [
       f('Foi o ano em que o Brasil virou república.'),
@@ -124,6 +129,7 @@ export const ano: CartaBase[] = [
   },
   {
     resposta: '1914',
+    nivel: 2,
     chutes: ['1939', '1918', '1917'],
     pistas: [
       f('Foi o ano em que começou a Primeira Guerra Mundial.'),
@@ -148,6 +154,7 @@ export const ano: CartaBase[] = [
   },
   {
     resposta: '1945',
+    nivel: 1,
     chutes: ['1939', '1944', '1950'],
     pistas: [
       f('Foi o ano em que terminou a Segunda Guerra Mundial.'),
@@ -172,6 +179,7 @@ export const ano: CartaBase[] = [
   },
   {
     resposta: '1969',
+    nivel: 1,
     chutes: ['1961', '1972', '1957'],
     pistas: [
       f('Foi o ano em que o ser humano pisou na Lua pela primeira vez.'),
@@ -196,6 +204,7 @@ export const ano: CartaBase[] = [
   },
   {
     resposta: '1989',
+    nivel: 2,
     chutes: ['1991', '1985', '1979'],
     pistas: [
       f('Foi o ano em que caiu o Muro de Berlim.'),
@@ -220,6 +229,7 @@ export const ano: CartaBase[] = [
   },
   {
     resposta: '2002',
+    nivel: 1,
     chutes: ['1994', '1998', '2006'],
     pistas: [
       f('Foi o ano em que o Brasil ganhou a Copa do Mundo pela quinta vez.'),

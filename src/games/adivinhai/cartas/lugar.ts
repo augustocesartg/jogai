@@ -4,6 +4,7 @@ import { d, f, m } from './util'
 export const lugar: CartaBase[] = [
   {
     resposta: 'Machu Picchu',
+    nivel: 2,
     aceitas: ['Machu Pichu'],
     chutes: ['Chichén Itzá', 'Cusco', 'Petra'],
     pistas: [
@@ -29,6 +30,7 @@ export const lugar: CartaBase[] = [
   },
   {
     resposta: 'Coliseu',
+    nivel: 1,
     aceitas: ['Anfiteatro Flaviano', 'Colosseum', 'Coliseu de Roma'],
     chutes: ['Partenon', 'Fórum Romano', 'Panteão'],
     pistas: [
@@ -54,6 +56,7 @@ export const lugar: CartaBase[] = [
   },
   {
     resposta: 'Pirâmides de Gizé',
+    nivel: 1,
     aceitas: ['Pirâmide de Gizé', 'Pirâmide de Quéops', 'Gizé', 'Pirâmides do Egito', 'Grande Pirâmide'],
     chutes: ['Vale dos Reis', 'Teotihuacán', 'Stonehenge'],
     pistas: [
@@ -79,6 +82,7 @@ export const lugar: CartaBase[] = [
   },
   {
     resposta: 'Muralha da China',
+    nivel: 1,
     aceitas: ['Grande Muralha da China', 'Grande Muralha'],
     chutes: ['Muro de Berlim', 'Cidade Proibida', 'Muro das Lamentações'],
     pistas: [
@@ -104,6 +108,7 @@ export const lugar: CartaBase[] = [
   },
   {
     resposta: 'Cristo Redentor',
+    nivel: 1,
     aceitas: ['Cristo', 'Estátua do Cristo Redentor'],
     chutes: ['Pão de Açúcar', 'Estátua da Liberdade', 'Cristo do Corcovado'],
     pistas: [
@@ -129,6 +134,7 @@ export const lugar: CartaBase[] = [
   },
   {
     resposta: 'Cataratas do Iguaçu',
+    nivel: 2,
     aceitas: ['Cataratas', 'Foz do Iguaçu', 'Iguaçu', 'Cataratas do Iguazu'],
     chutes: ['Cataratas do Niágara', 'Salto Ángel', 'Cataratas Vitória'],
     pistas: [
@@ -154,6 +160,7 @@ export const lugar: CartaBase[] = [
   },
   {
     resposta: 'Torre Eiffel',
+    nivel: 1,
     aceitas: ['Eiffel', 'La Tour Eiffel'],
     chutes: ['Big Ben', 'Arco do Triunfo', 'Torre de Pisa'],
     pistas: [
@@ -179,6 +186,7 @@ export const lugar: CartaBase[] = [
   },
   {
     resposta: 'Fernando de Noronha',
+    nivel: 2,
     aceitas: ['Noronha', 'Arquipélago de Fernando de Noronha'],
     chutes: ['Ilha Grande', 'Abrolhos', 'Fernando de Noronha Island'],
     pistas: [
@@ -204,6 +212,7 @@ export const lugar: CartaBase[] = [
   },
   {
     resposta: 'Pantanal',
+    nivel: 2,
     aceitas: ['O Pantanal', 'Pantanal Mato-Grossense'],
     chutes: ['Amazônia', 'Cerrado', 'Lençóis Maranhenses'],
     pistas: [
@@ -229,6 +238,7 @@ export const lugar: CartaBase[] = [
   },
   {
     resposta: 'Veneza',
+    nivel: 1,
     aceitas: ['Venezia'],
     chutes: ['Amsterdã', 'Bruges', 'Florença'],
     pistas: [

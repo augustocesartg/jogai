@@ -27,7 +27,7 @@ describe.skipIf(!import.meta.env.VITE_SIMULAR)('simulação de equilíbrio', () 
       let acertos = 0
       for (let s = 1; s <= N; s++) {
         const rng = criarRng(s * 7919)
-        let e = criarPartida(c.niveis.map((bot, i) => ({ nome: `B${i}`, bot })), CARTAS, rng)
+        let e = criarPartida(c.niveis.map((bot, i) => ({ nome: `B${i}`, bot })), CARTAS, rng, { nivel: c.niveis[0] })
         while (e.vencedor === null) {
           if (e.rodada.fase === 'fim') {
             rodadasTotal++

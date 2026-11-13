@@ -56,7 +56,7 @@ export function Configuracao({ onJogar, onSair }: Props) {
       </div>
 
       <div className="adv-campo">
-        <span>Nível dos bots</span>
+        <span>Dificuldade</span>
         <div className="chips">
           {NIVEIS.map((n) => (
             <button
@@ -69,6 +69,7 @@ export function Configuracao({ onJogar, onSair }: Props) {
             </button>
           ))}
         </div>
+        <small>Define a força dos bots e o quão difíceis são as cartas sorteadas.</small>
       </div>
 
       <button className="primario adv-jogar" onClick={jogar}>Jogar</button>

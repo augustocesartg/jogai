@@ -19,12 +19,14 @@ Funciona como app instalável (PWA) e abre offline depois da primeira visita.
 - Tela de vitória com resumo de tempo, acertos e ajudas.
 
 **Adivinhaí**
-- Tabuleiro de 40 casas, 5 categorias (pessoa, lugar, coisa, ano e mundo digital) e 50 cartas com 18 pistas cada.
+- Tabuleiro de 40 casas, 5 categorias (pessoa, lugar, coisa, ano e mundo digital) e 100 cartas (20 por categoria) com 18 pistas cada.
 - 20 números por rodada: pistas e comandos (perca a vez, avance 2, volte 1, escolha outro número).
 - Quem acerta avança `20 − números usados`. O Mediador (peão do sistema) avança 1 casa por pista sem acerto.
+- Cartas com nível de dificuldade (1 a 3). A dificuldade escolhida (fácil, médio ou difícil) define a força dos bots e quais cartas saem mais: no difícil, predominam as menos conhecidas.
+- O app lembra as cartas já usadas entre partidas e só repete quando todas saíram.
 - Bots em três níveis, de 0 a 5 por partida. O difícil sempre arrisca um palpite e acerta com cerca de 3 pistas, o médio com 6 a 7 e o fácil com 9 (medido por simulação).
 - Mascote detetive no jogo (comemora quando você acerta).
-- Efeitos sonoros sintetizados (sem arquivos, funcionam offline) com botão para silenciar, preferência salva no aparelho.
+- Efeitos sonoros suaves (ondas senoidais com filtro, sem arquivos, funcionam offline) com botão para silenciar, preferência salva no aparelho.
 - Avisos animados que saltam na tela ("Avance 2 casas!", "Volte 1 casa", acerto, erro...), peões que quicam ao chegar e vibração no celular nos seus lances.
 
 **Geral**
@@ -80,7 +82,7 @@ Regras, validadas por testes:
 A digitação ignora acentos e cedilha, mas a exibição mantém a grafia original.
 
 ## Adivinhaí: cartas e equilíbrio
-O tabuleiro tem 40 casas (`CASAS` em `types.ts`). Cada carta (`src/games/adivinhai/cartas/`) tem a resposta, variações aceitas, chutes errados para os bots e **exatamente 18 pistas** com dificuldade (`f`, `m` ou `d`). A cada rodada, 2 ou 3 comandos entram nos 20 números, em posições sorteadas. Os testes garantem 10 cartas por categoria, 18 pistas e que nenhuma pista contém a resposta.
+O tabuleiro tem 40 casas (`CASAS` em `types.ts`). Cada carta (`src/games/adivinhai/cartas/`, arquivos `*.ts` e `*2.ts` por categoria) tem a resposta, o `nivel` (1 = muito conhecida, 2 = intermediária, 3 = difícil), variações aceitas, chutes errados para os bots e **exatamente 18 pistas** com dificuldade (`f`, `m` ou `d`). A cada rodada, 2 ou 3 comandos entram nos 20 números, em posições sorteadas. Os testes garantem 20 cartas por categoria, 18 pistas e que nenhuma pista contém a resposta.
 
 O motor (`motor.ts`) é puro e não depende de React, para poder rodar também no servidor no modo online.
 
@@ -96,6 +98,7 @@ Guardados em `localStorage`, só no aparelho do jogador:
 - `jogai:stats`: palavras acertadas e sequência de dias.
 - `jogai:adivinhai:config`: nome, número e nível dos bots do Adivinhaí.
 - `jogai:adivinhai:som`: som ligado (`1`) ou desligado (`0`).
+- `jogai:adivinhai:cartas`: cartas do Adivinhaí já usadas, para não repetir.
 
 ## Deploy (Cloudflare)
 O site é publicado como Worker com arquivos estáticos (`wrangler.jsonc` aponta para `./dist`, com rotas desconhecidas tratadas como página única).

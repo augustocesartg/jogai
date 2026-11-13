@@ -13,8 +13,12 @@ export type Dif = 'f' | 'm' | 'd'
 export type Pista = [Dif, string]
 
 /** Carta como escrita nos arquivos de dados (a categoria vem do arquivo). */
+/** 1 = muito conhecida, 2 = intermediária, 3 = difícil */
+export type NivelCarta = 1 | 2 | 3
+
 export interface CartaBase {
   resposta: string
+  nivel: NivelCarta
   /** Outras formas aceitas (apelidos, nome completo). A própria resposta já é aceita. */
   aceitas?: string[]
   /** Palpites errados plausíveis, usados pelos bots. */
@@ -76,6 +80,8 @@ export interface Estado {
   jogadores: Jogador[]
   mediador: number
   rodadaNum: number
+  /** dificuldade escolhida: define o peso de cada nível de carta no sorteio */
+  nivelCartas: NivelBot
   /** índice de quem começou a rodada (rodízio) */
   inicio: number
   rodada: Rodada

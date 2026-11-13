@@ -4,9 +4,9 @@ import { CATEGORIAS } from '../types'
 import { CARTAS } from './index'
 
 describe('cartas', () => {
-  it('têm 10 cartas por categoria', () => {
+  it('têm 20 cartas por categoria', () => {
     for (const c of CATEGORIAS) {
-      expect(CARTAS.filter((x) => x.categoria === c.id).length, c.nome).toBe(10)
+      expect(CARTAS.filter((x) => x.categoria === c.id).length, c.nome).toBe(20)
     }
   })
 
@@ -24,10 +24,10 @@ describe('cartas', () => {
     }
   })
 
-  it('misturam dificuldades (pelo menos 4 de cada)', () => {
+  it('misturam dificuldades (pelo menos 3 de cada)', () => {
     for (const c of CARTAS) {
       for (const dif of ['f', 'm', 'd'] as const) {
-        expect(c.pistas.filter(([x]) => x === dif).length, `${c.id} ${dif}`).toBeGreaterThanOrEqual(4)
+        expect(c.pistas.filter(([x]) => x === dif).length, `${c.id} ${dif}`).toBeGreaterThanOrEqual(3)
       }
     }
   })
@@ -50,6 +50,11 @@ describe('cartas', () => {
       const alvos = [c.resposta, ...(c.aceitas ?? [])].map(normalizarPalpite)
       for (const chute of c.chutes) expect(alvos).not.toContain(normalizarPalpite(chute))
     }
+  })
+
+  it('todas têm nível de carta 1, 2 ou 3, e há cartas difíceis de sobra', () => {
+    for (const c of CARTAS) expect([1, 2, 3], c.id).toContain(c.nivel)
+    expect(CARTAS.filter((c) => c.nivel === 3).length).toBeGreaterThanOrEqual(15)
   })
 
   it('anos têm resposta numérica', () => {

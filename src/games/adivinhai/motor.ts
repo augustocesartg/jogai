@@ -9,6 +9,7 @@ import {
   type Estado,
   type Item,
   type NivelBot,
+  type NivelCarta,
   type Rodada,
 } from './types'
 
@@ -40,14 +41,35 @@ export function montarItens(carta: Carta, rng: Rng): Item[] {
   return embaralhar([...pistas, ...comandos], rng)
 }
 
-function sortearCarta(cartas: Carta[], usadas: string[], rng: Rng): { carta: Carta; usadas: string[] } {
+/** Peso de cada nível de carta no sorteio, conforme a dificuldade escolhida. */
+const PESOS: Record<NivelBot, Record<NivelCarta, number>> = {
+  facil: { 1: 4, 2: 2, 3: 0.4 },
+  medio: { 1: 1, 2: 2, 3: 1.5 },
+  dificil: { 1: 0.2, 2: 1, 3: 4 },
+}
+
+function sortearCarta(
+  cartas: Carta[],
+  usadas: string[],
+  rng: Rng,
+  nivel: NivelBot,
+): { carta: Carta; usadas: string[] } {
   let livres = cartas.filter((c) => !usadas.includes(c.id))
   let base = usadas
   if (livres.length === 0) {
     livres = cartas
     base = []
   }
-  const carta = livres[Math.floor(rng() * livres.length)]
+  const pesos = livres.map((c) => PESOS[nivel][c.nivel])
+  let sorteio = rng() * pesos.reduce((a, b) => a + b, 0)
+  let carta = livres[livres.length - 1]
+  for (let i = 0; i < livres.length; i++) {
+    sorteio -= pesos[i]
+    if (sorteio <= 0) {
+      carta = livres[i]
+      break
+    }
+  }
   return { carta, usadas: [...base, carta.id] }
 }
 
@@ -55,9 +77,18 @@ function novaRodada(carta: Carta, vez: number, rng: Rng): Rodada {
   return { carta, itens: montarItens(carta, rng), usados: [], vez, fase: 'escolher', atual: null, resultado: null }
 }
 
-export function criarPartida(jogadores: ConfigJogador[], cartas: Carta[], rng: Rng): Estado {
-  const { carta, usadas } = sortearCarta(cartas, [], rng)
+export interface OpcoesPartida {
+  /** dificuldade (bots e cartas) */
+  nivel?: NivelBot
+  /** ids das cartas já usadas em partidas anteriores */
+  usadas?: string[]
+}
+
+export function criarPartida(jogadores: ConfigJogador[], cartas: Carta[], rng: Rng, opcoes: OpcoesPartida = {}): Estado {
+  const nivel = opcoes.nivel ?? 'medio'
+  const { carta, usadas } = sortearCarta(cartas, opcoes.usadas ?? [], rng, nivel)
   return {
+    nivelCartas: nivel,
     jogadores: jogadores.map((j, i) => ({ id: `j${i}`, nome: j.nome, bot: j.bot, pos: 0, cor: CORES[i % CORES.length] })),
     mediador: 0,
     rodadaNum: 1,
@@ -173,7 +204,7 @@ function palpitar(e: Estado, texto: string) {
 
 function proxima(e: Estado, cartas: Carta[], rng: Rng) {
   if (e.rodada.fase !== 'fim' || e.vencedor !== null) return
-  const { carta, usadas } = sortearCarta(cartas, e.cartasUsadas, rng)
+  const { carta, usadas } = sortearCarta(cartas, e.cartasUsadas, rng, e.nivelCartas)
   e.cartasUsadas = usadas
   e.rodadaNum += 1
   e.inicio = (e.inicio + 1) % e.jogadores.length

@@ -4,6 +4,7 @@ import { d, f, m } from './util'
 export const coisa: CartaBase[] = [
   {
     resposta: 'Bússola',
+    nivel: 2,
     aceitas: ['Bussola'],
     chutes: ['Astrolábio', 'Relógio de sol', 'Mapa'],
     pistas: [
@@ -29,6 +30,7 @@ export const coisa: CartaBase[] = [
   },
   {
     resposta: 'Lâmpada',
+    nivel: 1,
     aceitas: ['Lâmpada elétrica', 'Lampada'],
     chutes: ['Vela', 'Lanterna', 'Abajur'],
     pistas: [
@@ -54,6 +56,7 @@ export const coisa: CartaBase[] = [
   },
   {
     resposta: 'Guarda-chuva',
+    nivel: 1,
     aceitas: ['Guarda chuva', 'Sombrinha'],
     chutes: ['Capa de chuva', 'Chapéu', 'Toldo'],
     pistas: [
@@ -79,6 +82,7 @@ export const coisa: CartaBase[] = [
   },
   {
     resposta: 'Violão',
+    nivel: 1,
     aceitas: ['Violao'],
     chutes: ['Guitarra', 'Cavaquinho', 'Viola'],
     pistas: [
@@ -104,6 +108,7 @@ export const coisa: CartaBase[] = [
   },
   {
     resposta: 'Geladeira',
+    nivel: 1,
     aceitas: ['Refrigerador', 'Frigorífico'],
     chutes: ['Freezer', 'Micro-ondas', 'Fogão'],
     pistas: [
@@ -129,6 +134,7 @@ export const coisa: CartaBase[] = [
   },
   {
     resposta: 'Óculos',
+    nivel: 1,
     aceitas: ['Oculos', 'Óculos de grau'],
     chutes: ['Lupa', 'Lente de contato', 'Binóculos'],
     pistas: [
@@ -154,6 +160,7 @@ export const coisa: CartaBase[] = [
   },
   {
     resposta: 'Relógio',
+    nivel: 1,
     aceitas: ['Relogio'],
     chutes: ['Cronômetro', 'Calendário', 'Ampulheta'],
     pistas: [
@@ -179,6 +186,7 @@ export const coisa: CartaBase[] = [
   },
   {
     resposta: 'Bicicleta',
+    nivel: 1,
     aceitas: ['Bike', 'Magrela', 'Bici'],
     chutes: ['Triciclo', 'Patinete', 'Motocicleta'],
     pistas: [
@@ -204,6 +212,7 @@ export const coisa: CartaBase[] = [
   },
   {
     resposta: 'Chocolate',
+    nivel: 1,
     aceitas: ['Chocolates'],
     chutes: ['Café', 'Caramelo', 'Sorvete'],
     pistas: [
@@ -229,6 +238,7 @@ export const coisa: CartaBase[] = [
   },
   {
     resposta: 'Espelho',
+    nivel: 1,
     aceitas: ['Espelhos'],
     chutes: ['Vidro', 'Janela', 'Lente'],
     pistas: [

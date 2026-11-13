@@ -9,6 +9,7 @@ function carta(id: string, resposta: string, extra: Partial<Carta> = {}): Carta 
   return {
     id,
     categoria: 'pessoa',
+    nivel: 2,
     resposta,
     chutes: ['Fulano', 'Beltrano'],
     pistas: Array.from({ length: 18 }, (_, i) => ['m', `Pista ${i + 1} sobre a carta`] as [ 'm', string ]),
@@ -198,6 +199,37 @@ describe('regras do jogo', () => {
     const copia = structuredClone(e)
     passo(e, { tipo: 'escolher', numero: 1 })
     expect(e).toEqual(copia)
+  })
+})
+
+describe('sorteio de cartas', () => {
+  const pool: Carta[] = Array.from({ length: 30 }, (_, i) =>
+    carta(`c${i}`, `Resposta ${i}`, { nivel: ((i % 3) + 1) as 1 | 2 | 3 }),
+  )
+
+  it('não repete cartas já usadas em partidas anteriores', () => {
+    const usadas = pool.slice(0, 29).map((c) => c.id)
+    for (let s = 0; s < 20; s++) {
+      const e = criarPartida([{ nome: 'A', bot: null }], pool, criarRng(s), { usadas })
+      expect(e.rodada.carta.id).toBe('c29')
+    }
+  })
+
+  it('reinicia o ciclo quando todas as cartas já foram usadas', () => {
+    const e = criarPartida([{ nome: 'A', bot: null }], pool, criarRng(3), { usadas: pool.map((c) => c.id) })
+    expect(e.cartasUsadas).toEqual([e.rodada.carta.id])
+  })
+
+  it('o nível difícil sorteia mais cartas difíceis que o fácil', () => {
+    const contar = (nivel: 'facil' | 'dificil') => {
+      let dificeis = 0
+      for (let s = 0; s < 400; s++) {
+        const e = criarPartida([{ nome: 'A', bot: null }], pool, criarRng(s + 1000), { nivel })
+        if (e.rodada.carta.nivel === 3) dificeis++
+      }
+      return dificeis
+    }
+    expect(contar('dificil')).toBeGreaterThan(contar('facil') * 2)
   })
 })
 

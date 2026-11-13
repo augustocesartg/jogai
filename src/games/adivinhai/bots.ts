@@ -1,9 +1,11 @@
 import type { Rng } from './rng'
-import type { Acao, Dif, Estado, NivelBot } from './types'
+import type { Acao, Dif, Estado, NivelBot, NivelCarta } from './types'
 
 const PESO: Record<Dif, number> = { f: 0.14, m: 0.08, d: 0.04 }
 /** Ajusta o quão rápido o bot "descobre" a resposta; calibrado por simulação. */
 const FATOR = 1
+/** Cartas difíceis também custam mais aos bots. */
+const FATOR_CARTA: Record<NivelCarta, number> = { 1: 1.1, 2: 1, 3: 0.85 }
 const HABILIDADE: Record<NivelBot, number> = { facil: 0.7, medio: 1, dificil: 2.6 }
 /** Disposição de arriscar um palpite: errar custa o mesmo que passar, então o difícil sempre tenta. */
 const OUSADIA: Record<NivelBot, { base: number; inclinacao: number }> = {
@@ -20,7 +22,7 @@ export function chanceDeAcerto(e: Estado, nivel: NivelBot): number {
     const item = r.itens[n - 1]
     if (item.tipo === 'pista') soma += PESO[item.dif]
   }
-  return 1 - Math.exp(-FATOR * HABILIDADE[nivel] * soma)
+  return 1 - Math.exp(-FATOR * FATOR_CARTA[r.carta.nivel] * HABILIDADE[nivel] * soma)
 }
 
 /** Decide a próxima ação do bot da vez. */

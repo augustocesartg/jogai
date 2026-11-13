@@ -3,7 +3,7 @@ import { Mascote } from '../../components/Mascote'
 import { jogadaBot } from './bots'
 import { CARTAS } from './cartas'
 import { aplicar, criarPartida, TEXTO_COMANDO, type ConfigJogador } from './motor'
-import type { ConfigAdivinhai } from './progresso'
+import { gravarCartasUsadas, lerCartasUsadas, type ConfigAdivinhai } from './progresso'
 import { definirSom, somLigado, tocar, type Som } from './sons'
 import { criarRng } from './rng'
 import { Tabuleiro, type Peao } from './Tabuleiro'
@@ -77,7 +77,8 @@ interface Props {
 export function Partida({ config, onNova, onConfig }: Props) {
   const [{ rng, inicial }] = useState(() => {
     const rng = criarRng(Math.floor(Math.random() * 2 ** 32))
-    return { rng, inicial: criarPartida(jogadoresDe(config), CARTAS, rng) }
+    const inicial = criarPartida(jogadoresDe(config), CARTAS, rng, { nivel: config.nivel, usadas: lerCartasUsadas() })
+    return { rng, inicial }
   })
   const [estado, setEstado] = useState<Estado>(inicial)
   const [resumoFechado, setResumoFechado] = useState(false)
@@ -110,6 +111,11 @@ export function Partida({ config, onNova, onConfig }: Props) {
     [rng],
   )
   const agir = executar
+
+  const cartasUsadas = estado.cartasUsadas.join('|')
+  useEffect(() => {
+    gravarCartasUsadas(cartasUsadas ? cartasUsadas.split('|') : [])
+  }, [cartasUsadas])
 
   const r = estado.rodada
   const jogador = estado.jogadores[r.vez]
