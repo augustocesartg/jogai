@@ -298,3 +298,12 @@ body {
   .adv-peao, .adv-placar li.pulso, .adv-pista { animation: none; }
   @keyframes aparecer { 0%, 100% { opacity: 0; } 10%, 85% { opacity: 1; } }
 }
+
+/* ===== mascote detetive e som ===== */
+.adv-painel { position: relative; }
+.adv-mascote { position: absolute; top: -40px; right: 12px; pointer-events: none; }
+.adv-painel h2 { padding-right: 78px; }
+.adv-som {
+  width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--borda); background: var(--card);
+  font-size: 1.1rem; line-height: 1; display: grid; place-items: center;
+}

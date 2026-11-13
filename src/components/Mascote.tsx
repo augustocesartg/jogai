@@ -1,4 +1,4 @@
-export type Pose = 'boas-vindas' | 'escritor' | 'comemorando'
+export type Pose = 'boas-vindas' | 'escritor' | 'comemorando' | 'detetive'
 
 interface Props {
   pose?: Pose
@@ -10,12 +10,14 @@ const ROTULO: Record<Pose, string> = {
   'boas-vindas': 'Mascote do Jogaí acenando',
   escritor: 'Mascote do Jogaí com um lápis',
   comemorando: 'Mascote do Jogaí comemorando',
+  detetive: 'Mascote do Jogaí vestido de detetive, com uma lupa',
 }
 
 const VIEWBOX: Record<Pose, string> = {
   'boas-vindas': '20 54 200 164',
   escritor: '255 56 190 176',
   comemorando: '465 28 190 200',
+  detetive: '24 34 230 184',
 }
 
 const J = {
@@ -126,6 +128,43 @@ function Comemorando() {
   )
 }
 
+function Detetive() {
+  return (
+    <>
+      <ellipse cx="120" cy="214" rx="50" ry="7" fill="#9CA3AF" opacity="0.35" />
+      <rect x="88" y="190" width="20" height="16" rx="7" fill="#3730A3" />
+      <rect x="132" y="190" width="20" height="16" rx="7" fill="#3730A3" />
+      <path d="M65 134 Q46 142 44 162" fill="none" stroke="#4F46E5" strokeWidth="9" strokeLinecap="round" />
+      <circle cx="44" cy="164" r="8" fill="#4F46E5" />
+      <rect x="65" y="86" width="110" height="110" rx="26" fill="#3730A3" />
+      <rect x="65" y="80" width="110" height="110" rx="26" fill="#4F46E5" />
+      <path d="M99 62 Q99 44 120 44 Q141 44 141 62 L143 84 L97 84 Z" fill="#92400E" />
+      <rect x="98" y="72" width="44" height="8" fill="#1F2937" />
+      <ellipse cx="120" cy="86" rx="46" ry="9" fill="#78350F" />
+      <circle cx="97" cy="126" r="15" fill="#FFFFFF" />
+      <circle cx="143" cy="126" r="15" fill="#FFFFFF" />
+      <circle cx="101" cy="128" r="7.5" fill="#1F2430" />
+      <circle cx="147" cy="128" r="7.5" fill="#1F2430" />
+      <circle cx="104" cy="124" r="2.6" fill="#FFFFFF" />
+      <circle cx="150" cy="124" r="2.6" fill="#FFFFFF" />
+      <path d="M82 110 Q97 103 112 110" fill="none" stroke="#1F2430" strokeWidth="4" strokeLinecap="round" />
+      <path d="M128 110 Q143 103 158 110" fill="none" stroke="#1F2430" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="80" cy="154" r="6.5" fill="#F9A8D4" />
+      <circle cx="160" cy="154" r="6.5" fill="#F9A8D4" />
+      <path d="M108 154 Q120 164 132 154" fill="none" stroke="#FFFFFF" strokeWidth="4.5" strokeLinecap="round" />
+      <g transform="rotate(-10 156 174)">
+        <rect x="142" y="160" width="28" height="28" rx="7" fill="#FBBF24" stroke="#FFFFFF" strokeWidth="2.5" />
+        <path d="M149 168 H163 M156 168 V180 Q156 184 152 184 Q149 184 148 181" strokeWidth="4.5" {...J} />
+      </g>
+      <path d="M175 138 Q196 138 202 112" fill="none" stroke="#4F46E5" strokeWidth="9" strokeLinecap="round" />
+      <path d="M204 104 L214 84" stroke="#78350F" strokeWidth="7" strokeLinecap="round" />
+      <circle cx="226" cy="62" r="19" fill="#E0F2FE" stroke="#FBBF24" strokeWidth="5" />
+      <path d="M217 56 Q222 50 229 52" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="203" cy="108" r="8" fill="#4F46E5" />
+    </>
+  )
+}
+
 export function Mascote({ pose = 'boas-vindas', tamanho = 160, className }: Props) {
   const [, , w, h] = VIEWBOX[pose].split(' ').map(Number)
   return (
@@ -140,6 +179,7 @@ export function Mascote({ pose = 'boas-vindas', tamanho = 160, className }: Prop
       {pose === 'boas-vindas' && <BoasVindas />}
       {pose === 'escritor' && <Escritor />}
       {pose === 'comemorando' && <Comemorando />}
+      {pose === 'detetive' && <Detetive />}
     </svg>
   )
 }

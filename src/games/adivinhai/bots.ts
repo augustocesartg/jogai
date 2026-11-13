@@ -4,7 +4,7 @@ import type { Acao, Dif, Estado, NivelBot } from './types'
 const PESO: Record<Dif, number> = { f: 0.14, m: 0.08, d: 0.04 }
 /** Ajusta o quão rápido o bot "descobre" a resposta; calibrado por simulação. */
 const FATOR = 1
-const HABILIDADE: Record<NivelBot, number> = { facil: 0.7, medio: 1, dificil: 1.6 }
+const HABILIDADE: Record<NivelBot, number> = { facil: 0.7, medio: 1, dificil: 2.6 }
 /** Disposição de arriscar um palpite: errar custa o mesmo que passar, então o difícil sempre tenta. */
 const OUSADIA: Record<NivelBot, { base: number; inclinacao: number }> = {
   facil: { base: 0.15, inclinacao: 1.2 },

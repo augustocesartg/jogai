@@ -22,7 +22,9 @@ Funciona como app instalável (PWA) e abre offline depois da primeira visita.
 - Tabuleiro de 40 casas, 5 categorias (pessoa, lugar, coisa, ano e mundo digital) e 50 cartas com 18 pistas cada.
 - 20 números por rodada: pistas e comandos (perca a vez, avance 2, volte 1, escolha outro número).
 - Quem acerta avança `20 − números usados`. O Mediador (peão do sistema) avança 1 casa por pista sem acerto.
-- Bots em três níveis, de 0 a 5 por partida. O difícil sempre arrisca um palpite e acerta com cerca de 4 pistas, o médio com 6 a 7 e o fácil com 9 (medido por simulação).
+- Bots em três níveis, de 0 a 5 por partida. O difícil sempre arrisca um palpite e acerta com cerca de 3 pistas, o médio com 6 a 7 e o fácil com 9 (medido por simulação).
+- Mascote detetive no jogo (comemora quando você acerta).
+- Efeitos sonoros sintetizados (sem arquivos, funcionam offline) com botão para silenciar, preferência salva no aparelho.
 - Avisos animados que saltam na tela ("Avance 2 casas!", "Volte 1 casa", acerto, erro...), peões que quicam ao chegar e vibração no celular nos seus lances.
 
 **Geral**
@@ -46,10 +48,11 @@ npm run preview  # serve o build (útil para testar o PWA)
 ```
 src/
   App.tsx                         home e navegação entre jogos
-  components/Mascote.tsx          mascote em SVG (boas-vindas, escritor, comemorando)
+  components/Mascote.tsx          mascote em SVG (boas-vindas, escritor, comemorando, detetive)
   games/adivinhai/
     motor.ts                      regras do jogo (função pura, reaproveitável no online)
-    bots.ts                       decisões dos bots
+    bots.ts                       decisões dos bots (calibradas por simulação)
+    sons.ts                       efeitos sonoros com WebAudio
     palpite.ts                    conferência de palpites (sem acento, tolerante a erros)
     cartas/                       cartas por categoria (pessoa.ts, lugar.ts, ...)
     Partida.tsx, Tabuleiro.tsx    telas do jogo
@@ -92,6 +95,7 @@ Guardados em `localStorage`, só no aparelho do jogador:
 - `jogai:cruzadas:vistas`: palavras já usadas, para evitar repetição.
 - `jogai:stats`: palavras acertadas e sequência de dias.
 - `jogai:adivinhai:config`: nome, número e nível dos bots do Adivinhaí.
+- `jogai:adivinhai:som`: som ligado (`1`) ou desligado (`0`).
 
 ## Deploy (Cloudflare)
 O site é publicado como Worker com arquivos estáticos (`wrangler.jsonc` aponta para `./dist`, com rotas desconhecidas tratadas como página única).

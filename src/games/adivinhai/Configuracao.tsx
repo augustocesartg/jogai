@@ -28,7 +28,7 @@ export function Configuracao({ onJogar, onSair }: Props) {
     <main className="config adv-config">
       <button className="voltar" onClick={onSair}>← Jogos</button>
       <div className="config-topo">
-        <Mascote pose="escritor" tamanho={110} />
+        <Mascote pose="detetive" tamanho={120} />
         <div>
           <h1>Adivinhaí</h1>
           <p className="sub">20 pistas, 1 resposta</p>

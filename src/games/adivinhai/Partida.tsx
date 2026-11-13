@@ -4,6 +4,7 @@ import { jogadaBot } from './bots'
 import { CARTAS } from './cartas'
 import { aplicar, criarPartida, TEXTO_COMANDO, type ConfigJogador } from './motor'
 import type { ConfigAdivinhai } from './progresso'
+import { definirSom, somLigado, tocar, type Som } from './sons'
 import { criarRng } from './rng'
 import { Tabuleiro, type Peao } from './Tabuleiro'
 import { CATEGORIAS, CASAS, TOTAL_ITENS, type Acao, type Estado } from './types'
@@ -15,6 +16,24 @@ interface Aviso {
   detalhe?: string
   tom: 'ok' | 'ruim' | 'comando' | 'info'
   ms: number
+}
+
+/** Sons correspondentes à transição de estado (eventos, pista revelada e fim de partida). */
+function sonsDe(antes: Estado, depois: Estado): Som[] {
+  const lista: Som[] = []
+  if (depois.seq === antes.seq) {
+    if (antes.rodada.fase === 'escolher' && depois.rodada.fase === 'palpitar') lista.push('pista')
+  } else {
+    for (const ev of depois.eventos) {
+      if (ev.tipo === 'comando') lista.push(ev.comando)
+      else if (ev.tipo === 'erro') lista.push(ev.passou ? 'passou' : 'erro')
+      else if (ev.tipo === 'acerto') lista.push('acerto')
+      else if (ev.tipo === 'esgotou') lista.push('esgotou')
+      else lista.push('rodada')
+    }
+  }
+  if (depois.vencedor !== null && antes.vencedor === null) lista.push(depois.vencedor === 0 ? 'vitoria' : 'derrota')
+  return lista
 }
 
 /** Transforma os eventos da última ação em avisos que saltam na tela. */
@@ -65,6 +84,8 @@ export function Partida({ config, onNova, onConfig }: Props) {
 
   const estadoRef = useRef<Estado>(inicial)
   const [avisos, setAvisos] = useState<Aviso[]>([])
+  const [festa, setFesta] = useState(false)
+  const [som, setSom] = useState(somLigado)
   const contadorAviso = useRef(0)
 
   const executar = useCallback(
@@ -73,6 +94,12 @@ export function Partida({ config, onNova, onConfig }: Props) {
       const depois = aplicar(antes, a, CARTAS, rng)
       estadoRef.current = depois
       setEstado(depois)
+      const sons = sonsDe(antes, depois)
+      if (sons.length > 0) tocar(sons)
+      if (depois.eventos.some((ev) => ev.tipo === 'acerto' && ev.jogador === 0) && depois.seq !== antes.seq) {
+        setFesta(true)
+        setTimeout(() => setFesta(false), 2400)
+      }
       if (depois.seq === antes.seq) return
       const novos = avisosDe(depois, () => ++contadorAviso.current)
       setAvisos((atual) => [...atual, ...novos].slice(-3))
@@ -111,6 +138,17 @@ export function Partida({ config, onNova, onConfig }: Props) {
       <header className="barra">
         <button className="voltar" onClick={onConfig}>← Sair</button>
         <span className="adv-rodada">Rodada {estado.rodadaNum}</span>
+        <button
+          className="adv-som"
+          aria-label={som ? 'Desligar o som' : 'Ligar o som'}
+          aria-pressed={som}
+          onClick={() => {
+            definirSom(!som)
+            setSom(!som)
+          }}
+        >
+          {som ? '🔊' : '🔇'}
+        </button>
         <span className="adv-categoria">{categoria.emoji} {categoria.nome}</span>
       </header>
 
@@ -142,6 +180,7 @@ export function Partida({ config, onNova, onConfig }: Props) {
       </ul>
 
       <section className="adv-painel" aria-live="polite">
+        <Mascote className="adv-mascote" pose={festa ? 'comemorando' : 'detetive'} tamanho={66} />
         {r.fase === 'escolher' && (
           <>
             <h2>{minhaVez ? 'Sua vez! Escolha um número' : `${jogador.nome} está escolhendo…`}</h2>
@@ -166,10 +205,10 @@ export function Partida({ config, onNova, onConfig }: Props) {
         {r.fase === 'palpitar' && pistaAtual?.tipo === 'pista' && (
           <>
             <h2>Pista {r.atual}</h2>
-            <p className="adv-pista" key={`${estado.rodadaNum}-${r.atual}`}>{pistaAtual.texto}</p>
+            <p className="adv-pista" key={`pista-${estado.rodadaNum}-${r.atual}`}>{pistaAtual.texto}</p>
             {minhaVez ? (
               <FormPalpite
-                key={`${estado.rodadaNum}-${r.usados.length}`}
+                key={`palpite-${estado.rodadaNum}-${r.usados.length}`}
                 numerico={r.carta.categoria === 'ano'}
                 onPalpite={(texto) => agir({ tipo: 'palpitar', texto })}
                 onPassar={() => agir({ tipo: 'passar' })}
@@ -229,7 +268,7 @@ export function Partida({ config, onNova, onConfig }: Props) {
       {estado.vencedor !== null && !resumoFechado && (
         <div className="vitoria-fundo" role="dialog" aria-modal="true" aria-label="Fim da partida">
           <div className="vitoria-tela">
-            <Mascote pose={euVenci ? 'comemorando' : 'escritor'} tamanho={140} />
+            <Mascote pose={euVenci ? 'comemorando' : 'detetive'} tamanho={150} />
             <h2>{euVenci ? 'Você venceu!' : `${nomeVencedor} venceu!`}</h2>
             <p>{euVenci ? 'Mandou bem nas pistas.' : estado.vencedor === 'mediador' ? 'Dessa vez o Mediador levou.' : 'Boa partida!'}</p>
             <ul className="adv-final">
