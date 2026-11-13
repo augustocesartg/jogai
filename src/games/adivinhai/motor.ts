@@ -13,6 +13,8 @@ import {
   type Rodada,
 } from './types'
 
+export const NOMES_BOTS = ['Ana', 'Beto', 'Carla', 'Davi', 'Eva']
+
 export const CORES = ['#4F46E5', '#EC4899', '#10B981', '#3B82F6', '#F97316', '#8B5CF6']
 
 export interface ConfigJogador {

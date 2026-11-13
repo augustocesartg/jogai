@@ -146,9 +146,10 @@ function Entrada({ onEntrar, onSair }: { onEntrar: (c: string) => void; onSair: 
 }
 
 function Espera({ codigo, nome, onSair }: { codigo: string; nome: string; onSair: () => void }) {
-  const { sala, conexao, erro, sair, enviar } = useSala(codigo, nome)
+  const { sala, fimEm, conexao, erro, sair, enviar } = useSala(codigo, nome)
   const [copiado, setCopiado] = useState(false)
   const [nivel, setNivel] = useState<NivelBot>('medio')
+  const [bots, setBots] = useState(0)
   const link = `${location.origin}/sala/${codigo}`
 
   async function compartilhar() {
@@ -186,6 +187,7 @@ function Espera({ codigo, nome, onSair }: { codigo: string; nome: string; onSair
       <TelaPartida
         visao={sala.visao}
         eu={sala.eu}
+        fimEm={fimEm}
         agir={(acao) => enviar({ t: 'agir', acao })}
         onNova={souAnfitriao ? () => enviar({ t: 'revanche' }) : null}
         esperaNova="Aguardando o anfitrião começar outra partida."
@@ -195,7 +197,10 @@ function Espera({ codigo, nome, onSair }: { codigo: string; nome: string; onSair
       />
     )
   }
-  const podeIniciar = souAnfitriao && (sala?.jogadores.filter((j) => j.conectado).length ?? 0) >= MIN_JOGADORES
+  const humanos = sala?.jogadores.length ?? 0
+  const maxBots = MAX_JOGADORES - humanos
+  const botsAtuais = Math.min(bots, maxBots)
+  const podeIniciar = souAnfitriao && humanos + botsAtuais >= MIN_JOGADORES
 
   return (
     <main className="config adv-config">
@@ -241,10 +246,18 @@ function Espera({ codigo, nome, onSair }: { codigo: string; nome: string; onSair
               ))}
             </div>
           </div>
-          <button className="primario adv-jogar" disabled={!podeIniciar} onClick={() => enviar({ t: 'iniciar', nivel })}>
+          <div className="adv-campo">
+            <span>Bots para completar a sala</span>
+            <div className="adv-stepper">
+              <button onClick={() => setBots(Math.max(0, botsAtuais - 1))} aria-label="Menos um bot" disabled={botsAtuais === 0}>−</button>
+              <b>{botsAtuais}</b>
+              <button onClick={() => setBots(Math.min(maxBots, botsAtuais + 1))} aria-label="Mais um bot" disabled={botsAtuais >= maxBots}>+</button>
+            </div>
+          </div>
+          <button className="primario adv-jogar" disabled={!podeIniciar} onClick={() => enviar({ t: 'iniciar', nivel, bots: botsAtuais })}>
             Iniciar partida
           </button>
-          {!podeIniciar && <small>Precisa de pelo menos {MIN_JOGADORES} jogadores conectados.</small>}
+          {!podeIniciar && <small>Precisa de pelo menos {MIN_JOGADORES} jogadores (você pode completar com bots).</small>}
         </>
       ) : (
         <small>O anfitrião inicia a partida quando todos entrarem.</small>

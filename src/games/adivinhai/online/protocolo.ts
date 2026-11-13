@@ -15,7 +15,7 @@ export interface JogadorSala {
 export type Cliente =
   | { t: 'entrar'; id: string; nome: string }
   | { t: 'sair' }
-  | { t: 'iniciar'; nivel: NivelBot }
+  | { t: 'iniciar'; nivel: NivelBot; bots: number }
   | { t: 'agir'; acao: Acao }
   | { t: 'revanche' }
   | { t: 'ping' }
@@ -23,7 +23,7 @@ export type Cliente =
 export type ErroSala = 'cheia' | 'inexistente' | 'invalido' | 'iniciada'
 
 export type Servidor =
-  | { t: 'sala'; codigo: string; voce: string; anfitriao: string; jogadores: JogadorSala[]; visao: Visao | null; eu: number }
+  | { t: 'sala'; codigo: string; voce: string; anfitriao: string; jogadores: JogadorSala[]; visao: Visao | null; eu: number; restante: number | null }
   | { t: 'erro'; erro: ErroSala }
   | { t: 'pong' }
 

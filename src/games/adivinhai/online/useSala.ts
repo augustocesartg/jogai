@@ -31,6 +31,8 @@ export async function criarSala(): Promise<string> {
 // Mantém a conexão com a sala e reconecta sozinho se cair (ex.: celular bloqueou a tela).
 export function useSala(codigo: string, nome: string) {
   const [sala, setSala] = useState<Sala | null>(null)
+  // instante (relógio local) em que a jogada automática acontece
+  const [fimEm, setFimEm] = useState<number | null>(null)
   const [conexao, setConexao] = useState<Conexao>('conectando')
   const [erro, setErro] = useState<ErroSala | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
@@ -61,6 +63,7 @@ export function useSala(codigo: string, nome: string) {
         const msg = JSON.parse(e.data as string) as Servidor
         if (msg.t === 'sala') {
           setSala(msg)
+          setFimEm(msg.restante === null ? null : Date.now() + msg.restante)
           setConexao('conectado')
         } else if (msg.t === 'erro') {
           encerrado.current = true
@@ -103,5 +106,5 @@ export function useSala(codigo: string, nome: string) {
     if (ws && ws.readyState === 1) ws.send(JSON.stringify(msg))
   }, [])
 
-  return { sala, conexao, erro, sair, enviar }
+  return { sala, fimEm, conexao, erro, sair, enviar }
 }

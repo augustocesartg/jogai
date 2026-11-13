@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { jogadaBot } from './bots'
 import { CARTAS } from './cartas'
-import { aplicar, criarPartida, type ConfigJogador } from './motor'
+import { aplicar, criarPartida, NOMES_BOTS, type ConfigJogador } from './motor'
 import { gravarCartasUsadas, lerCartasUsadas, type ConfigAdivinhai } from './progresso'
 import { criarRng } from './rng'
 import { TelaPartida } from './TelaPartida'
 import type { Acao, Estado } from './types'
 import { visaoDe } from './visao'
-
-const NOMES_BOTS = ['Ana', 'Beto', 'Carla', 'Davi', 'Eva']
 
 function jogadoresDe(c: ConfigAdivinhai): ConfigJogador[] {
   return [

@@ -118,12 +118,14 @@ O repositório está conectado ao Cloudflare: um push na branch `main` dispara o
 - Se uma atualização não aparecer nos aparelhos, incremente `CACHE` em `public/sw.js`.
 - Para regenerar os ícones PNG: `python3 design/gerar-icones.py public`.
 
-## Modo online (em construção)
-- **Etapa 1 (pronta):** criar sala (código de 4 letras), entrar pelo link `/sala/ABCD`, lista de jogadores em tempo real, reconexão automática e anfitrião.
-- **Etapa 2 (pronta):** o anfitrião escolhe a dificuldade e inicia (mínimo de 2 jogadores). A partida roda no Durable Object com o mesmo `motor.ts`; o navegador só recebe a `Visao` (`visao.ts`): categoria, pistas já escolhidas e, no fim da rodada, a resposta. As jogadas são validadas no servidor (só joga quem está na vez). Quem sai no meio da partida pode voltar pelo link; novos jogadores não entram depois do início. No fim, o anfitrião volta todos à sala para outra partida.
-- **Etapa 3 (a fazer):** timer de vez (hoje a partida espera quem estiver offline), bots completando a sala e acabamento.
-
-Salas ficam em Durable Objects (SQLite, plano gratuito) e somem após 6 h sem ninguém conectado. As cartas já usadas na sala são lembradas no servidor.
+## Modo online
+Salas por link, para 2 a 6 jogadores (humanos e bots). Criar sala gera um código de 4 letras; o link `/sala/ABCD` leva direto à sala.
+- **Sala:** lista de jogadores em tempo real, reconexão automática e anfitrião. O anfitrião escolhe a dificuldade e quantos bots completam a sala (mínimo de 2 jogadores no total) e inicia.
+- **Partida:** roda no Durable Object com o mesmo `motor.ts`. O navegador só recebe a `Visao` (`visao.ts`): categoria, pistas já escolhidas e, no fim da rodada, a resposta. As jogadas são validadas no servidor (só joga quem está na vez).
+- **Bots:** jogam no servidor, com a mesma lógica do modo solo (`bots.ts`).
+- **Tempo de vez:** 30 s para escolher e 30 s para palpitar; esgotado, o servidor escolhe um número ao acaso ou passa. Quem caiu na própria vez joga sozinho depois de 5 s. A próxima rodada começa sozinha após 20 s. Se ninguém estiver conectado, a partida pausa até alguém voltar.
+- **Entrada e saída:** quem sai no meio da partida volta pelo link e mantém o lugar; novos jogadores não entram depois do início. No fim, o anfitrião (ou qualquer jogador, se ele sumiu) volta todos à sala.
+- **Armazenamento:** salas ficam em Durable Objects (SQLite, plano gratuito) e somem após 6 h sem ninguém conectado. As cartas já usadas na sala são lembradas no servidor.
 
 ## Ideias futuras
 Mais cartas, teclado virtual nas palavras cruzadas, salvar partida em andamento, botão de compartilhar o resultado e novos jogos (caça-palavras e forca já têm cartão "Em breve" na home).

@@ -61,6 +61,8 @@ interface Props {
   visao: Visao
   /** índice do jogador que está nesta tela */
   eu: number
+  /** instante em que a jogada automática acontece (só no online) */
+  fimEm?: number | null
   agir: (a: Acao) => void
   /** botão do fim da partida; null = quem decide é outra pessoa (mostra `esperaNova`) */
   onNova: (() => void) | null
@@ -71,7 +73,7 @@ interface Props {
   extra?: React.ReactNode
 }
 
-export function TelaPartida({ visao: estado, eu, agir, onNova, esperaNova, onSair, rotuloSair = '← Sair', extra }: Props) {
+export function TelaPartida({ visao: estado, eu, fimEm, agir, onNova, esperaNova, onSair, rotuloSair = '← Sair', extra }: Props) {
   const [resumoFechado, setResumoFechado] = useState(false)
   const [avisos, setAvisos] = useState<Aviso[]>([])
   const [festa, setFesta] = useState(false)
@@ -159,6 +161,8 @@ export function TelaPartida({ visao: estado, eu, agir, onNova, esperaNova, onSai
           Mediador <b>{Math.min(estado.mediador, CASAS)}</b>
         </li>
       </ul>
+
+      {fimEm != null && estado.vencedor === null && !jogador.bot && <Contagem key={fimEm} fimEm={fimEm} fase={r.fase} />}
 
       <section className="adv-painel" aria-live="polite">
         <Mascote className="adv-mascote" pose={festa ? 'comemorando' : 'detetive'} tamanho={66} />
@@ -314,5 +318,19 @@ function FormPalpite({
         <button type="button" className="secundario" onClick={onPassar}>Passar</button>
       </div>
     </form>
+  )
+}
+
+function Contagem({ fimEm, fase }: { fimEm: number; fase: string }) {
+  const [agora, setAgora] = useState(() => Date.now())
+  useEffect(() => {
+    const t = setInterval(() => setAgora(Date.now()), 500)
+    return () => clearInterval(t)
+  }, [])
+  const s = Math.max(0, Math.ceil((fimEm - agora) / 1000))
+  return (
+    <p className={'adv-contagem' + (s <= 8 ? ' urgente' : '')} role="timer">
+      {fase === 'fim' ? `Próxima rodada em ${s}s` : `⏳ ${s}s`}
+    </p>
   )
 }

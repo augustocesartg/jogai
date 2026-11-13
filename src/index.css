@@ -317,3 +317,6 @@ body {
 .adv-lista-sala li.off { opacity: 0.55; }
 .adv-lista-sala .ponto { width: 10px; height: 10px; border-radius: 50%; background: #22C55E; flex: none; }
 .adv-lista-sala li.off .ponto { background: #9CA3AF; }
+
+.adv-contagem { text-align: center; font-weight: 700; margin: 4px 0; color: var(--suave); }
+.adv-contagem.urgente { color: #DC2626; }
