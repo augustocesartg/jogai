@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Mascote } from './components/Mascote'
+import { Adivinhai } from './games/adivinhai/Adivinhai'
 import { PalavrasCruzadas } from './games/palavras-cruzadas/PalavrasCruzadas'
 import { lerStats } from './games/palavras-cruzadas/progresso'
 
@@ -12,6 +13,7 @@ export default function App() {
   const [jogo, setJogo] = useState<string | null>(null)
 
   if (jogo === 'cruzadas') return <PalavrasCruzadas onSair={() => setJogo(null)} />
+  if (jogo === 'adivinhai') return <Adivinhai onSair={() => setJogo(null)} />
   return <Home onJogar={setJogo} />
 }
 
@@ -45,6 +47,16 @@ function Home({ onJogar }: { onJogar: (id: string) => void }) {
             <span className="textos">
               <strong>Palavras Cruzadas</strong>
               <small>História, artes, ciência e geografia</small>
+            </span>
+            <span className="jogar">Jogar ▶</span>
+          </button>
+        </li>
+        <li>
+          <button className="cartao-jogo destaque adivinhai" onClick={() => onJogar('adivinhai')}>
+            <span className="emoji">🕵️</span>
+            <span className="textos">
+              <strong>Adivinhaí</strong>
+              <small>20 pistas, 1 resposta. Jogue com bots</small>
             </span>
             <span className="jogar">Jogar ▶</span>
           </button>

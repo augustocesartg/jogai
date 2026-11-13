@@ -1,18 +1,30 @@
 # Jogaí
 
-Site de jogos para o navegador, pensado para o celular. Por enquanto tem um jogo: **palavras cruzadas** com palavras de história, artes, ciência e geografia.
+Site de jogos para o navegador, pensado para o celular. Jogos:
+
+- **Palavras Cruzadas**: palavras de história, artes, ciência e geografia.
+- **Adivinhaí**: 20 pistas, 1 resposta. Jogo de cartas e tabuleiro, solo contra bots (funciona offline).
 
 **Online:** https://jogai.augustocesartg.workers.dev
 
 Funciona como app instalável (PWA) e abre offline depois da primeira visita.
 
 ## Recursos
+**Palavras Cruzadas**
 - Tabuleiro gerado a cada partida (grade 11×11, cerca de 10 palavras), sorteando das matérias escolhidas.
 - Banco com 1.200 palavras (300 por matéria), cada uma com dica. Palavras já vistas só voltam quando as inéditas acabam.
 - Matérias configuráveis (todas por padrão); a escolha fica salva no navegador.
 - Palavra certa fica verde e trava; botão para revelar letra.
-- Tela de vitória com tempo, acertos e ajudas usadas.
 - Estatísticas leves na home (palavras acertadas e dias seguidos), salvas só no navegador, sem login.
+- Tela de vitória com resumo de tempo, acertos e ajudas.
+
+**Adivinhaí**
+- Tabuleiro de 30 casas, 5 categorias (pessoa, lugar, coisa, ano e mundo digital) e 50 cartas com 18 pistas cada.
+- 20 números por rodada: pistas e comandos (perca a vez, avance 2, volte 1, escolha outro número).
+- Quem acerta avança `20 − números usados`. O Mediador (peão do sistema) avança 1 casa por pista sem acerto.
+- Bots em três níveis, de 0 a 5 por partida.
+
+**Geral**
 - Mascote (Bloco J) com três poses, em SVG.
 - PWA: instalável e offline.
 
@@ -34,6 +46,13 @@ npm run preview  # serve o build (útil para testar o PWA)
 src/
   App.tsx                         home e navegação entre jogos
   components/Mascote.tsx          mascote em SVG (boas-vindas, escritor, comemorando)
+  games/adivinhai/
+    motor.ts                      regras do jogo (função pura, reaproveitável no online)
+    bots.ts                       decisões dos bots
+    palpite.ts                    conferência de palpites (sem acento, tolerante a erros)
+    cartas/                       cartas por categoria (pessoa.ts, lugar.ts, ...)
+    Partida.tsx, Tabuleiro.tsx    telas do jogo
+    simulacao.test.ts             simulação de equilíbrio com bots (opcional)
   games/palavras-cruzadas/
     PalavrasCruzadas.tsx          configuração de matérias e início da partida
     Jogo.tsx                      tabuleiro, digitação, dicas e tela de vitória
@@ -56,11 +75,22 @@ Regras, validadas por testes:
 
 A digitação ignora acentos e cedilha, mas a exibição mantém a grafia original.
 
+## Adivinhaí: cartas e equilíbrio
+Cada carta (`src/games/adivinhai/cartas/`) tem a resposta, variações aceitas, chutes errados para os bots e **exatamente 18 pistas** com dificuldade (`f`, `m` ou `d`). A cada rodada, 2 ou 3 comandos entram nos 20 números, em posições sorteadas. Os testes garantem 10 cartas por categoria, 18 pistas e que nenhuma pista contém a resposta.
+
+O motor (`motor.ts`) é puro e não depende de React, para poder rodar também no servidor no modo online.
+
+Para medir o equilíbrio com partidas só de bots:
+```bash
+VITE_SIMULAR=1 npx vitest run src/games/adivinhai/simulacao.test.ts --reporter=verbose
+```
+
 ## Dados no navegador
 Guardados em `localStorage`, só no aparelho do jogador:
 - `jogai:cruzadas:materias`: matérias escolhidas.
 - `jogai:cruzadas:vistas`: palavras já usadas, para evitar repetição.
 - `jogai:stats`: palavras acertadas e sequência de dias.
+- `jogai:adivinhai:config`: nome, número e nível dos bots do Adivinhaí.
 
 ## Deploy (Cloudflare)
 O site é publicado como Worker com arquivos estáticos (`wrangler.jsonc` aponta para `./dist`, com rotas desconhecidas tratadas como página única).
@@ -76,4 +106,4 @@ O repositório está conectado ao Cloudflare: um push na branch `main` dispara o
 - Para regenerar os ícones PNG: `python3 design/gerar-icones.py public`.
 
 ## Ideias futuras
-Teclado virtual próprio, salvar a partida em andamento, botão de compartilhar o resultado, dificuldade ajustável e novos jogos (caça-palavras e forca já têm cartão "Em breve" na home).
+Modo online do Adivinhaí (salas por link com Durable Objects do Cloudflare), mais cartas, teclado virtual nas palavras cruzadas, salvar partida em andamento, botão de compartilhar o resultado e novos jogos (caça-palavras e forca já têm cartão "Em breve" na home).
