@@ -13,7 +13,7 @@ export interface JogadorSala {
 }
 
 export type Cliente =
-  | { t: 'entrar'; id: string; nome: string }
+  | { t: 'entrar'; id: string; nome: string; vistas: string[] }
   | { t: 'sair' }
   | { t: 'iniciar'; nivel: NivelBot; bots: number }
   | { t: 'agir'; acao: Acao }

@@ -50,6 +50,9 @@ const PESOS: Record<NivelBot, Record<NivelCarta, number>> = {
   dificil: { 1: 0.2, 2: 1, 3: 4 },
 }
 
+/** fração das cartas (as mais recentes) que não volta logo depois de o ciclo recomeçar */
+const RECENTES = 0.2
+
 function sortearCarta(
   cartas: Carta[],
   usadas: string[],
@@ -59,8 +62,10 @@ function sortearCarta(
   let livres = cartas.filter((c) => !usadas.includes(c.id))
   let base = usadas
   if (livres.length === 0) {
-    livres = cartas
-    base = []
+    // todas já saíram: recomeça o ciclo, mas as mais recentes continuam fora (as mais antigas voltam primeiro)
+    base = usadas.slice(-Math.max(1, Math.floor(cartas.length * RECENTES)))
+    livres = cartas.filter((c) => !base.includes(c.id))
+    if (livres.length === 0) livres = cartas
   }
   const pesos = livres.map((c) => PESOS[nivel][c.nivel])
   let sorteio = rng() * pesos.reduce((a, b) => a + b, 0)
@@ -93,6 +98,7 @@ export function criarPartida(jogadores: ConfigJogador[], cartas: Carta[], rng: R
     nivelCartas: nivel,
     jogadores: jogadores.map((j, i) => ({ id: `j${i}`, nome: j.nome, bot: j.bot, pos: 0, cor: CORES[i % CORES.length] })),
     mediador: 0,
+    mediadorAcumulo: 0,
     rodadaNum: 1,
     inicio: 0,
     rodada: novaRodada(carta, 0, rng),
@@ -108,9 +114,24 @@ function log(e: Estado, msg: string) {
   e.historico = [...e.historico, msg].slice(-14)
 }
 
-function moverMediador(e: Estado, delta: number) {
-  e.mediador += delta
+/**
+ * Quanto o Mediador anda por pista sem acerto, em % de casa: com mais jogadores há mais erros por rodada,
+ * então ele fica mais lento. Calibrado por simulação (`simulacao.test.ts`).
+ */
+const TAXA_MEDIADOR: Record<number, number> = { 3: 90, 4: 70, 5: 62, 6: 56 }
+export function taxaMediador(jogadores: number): number {
+  return TAXA_MEDIADOR[jogadores] ?? 100
+}
+
+/** Soma pontos ao Mediador; devolve true se ele de fato andou. */
+function moverMediador(e: Estado, delta: number): boolean {
+  e.mediadorAcumulo += delta * taxaMediador(e.jogadores.length)
+  const casas = Math.floor(e.mediadorAcumulo / 100)
+  if (casas === 0) return false
+  e.mediadorAcumulo -= casas * 100
+  e.mediador += casas
   if (e.vencedor === null && e.mediador >= CASAS) e.vencedor = 'mediador'
+  return true
 }
 
 function moverJogador(e: Estado, i: number, delta: number) {
@@ -168,9 +189,9 @@ function escolher(e: Estado, numero: number) {
     return
   }
 
-  moverMediador(e, 1)
+  const andou = moverMediador(e, 1)
   e.eventos.push({ tipo: 'comando', comando: item.comando, jogador: r.vez })
-  log(e, `${jogador.nome} escolheu o ${numero}: ${TEXTO_COMANDO[item.comando]}. Mediador +1.`)
+  log(e, `${jogador.nome} escolheu o ${numero}: ${TEXTO_COMANDO[item.comando]}.${andou ? ' Mediador +1.' : ''}`)
   if (item.comando === 'avance2') moverJogador(e, r.vez, 2)
   if (item.comando === 'volte1') moverJogador(e, r.vez, -1)
   if (item.comando === 'outro') continuarVez(e)
@@ -180,9 +201,9 @@ function escolher(e: Estado, numero: number) {
 function errou(e: Estado, passou: boolean) {
   const r = e.rodada
   const jogador = e.jogadores[r.vez]
-  moverMediador(e, 1)
+  const andou = moverMediador(e, 1)
   e.eventos.push({ tipo: 'erro', jogador: r.vez, passou })
-  log(e, passou ? `${jogador.nome} passou. Mediador +1.` : `${jogador.nome} errou. Mediador +1.`)
+  log(e, `${jogador.nome} ${passou ? 'passou' : 'errou'}.${andou ? ' Mediador +1.' : ''}`)
   seguir(e)
 }
 

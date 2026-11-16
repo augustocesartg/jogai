@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { lerCartasUsadas } from '../progresso'
 import type { Cliente, ErroSala, Servidor } from './protocolo'
 
 export type Sala = Extract<Servidor, { t: 'sala' }>
@@ -54,7 +55,7 @@ export function useSala(codigo: string, nome: string) {
       wsRef.current = ws
       ws.onopen = () => {
         tentativa = 0
-        const msg: Cliente = { t: 'entrar', id: meuId(), nome: nomeRef.current }
+        const msg: Cliente = { t: 'entrar', id: meuId(), nome: nomeRef.current, vistas: lerCartasUsadas().slice(-200) }
         ws.send(JSON.stringify(msg))
         clearInterval(ping)
         ping = setInterval(() => ws.readyState === 1 && ws.send(JSON.stringify({ t: 'ping' } satisfies Cliente)), 25000)

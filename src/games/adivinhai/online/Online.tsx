@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Mascote } from '../../../components/Mascote'
+import { marcarCartaVista } from '../progresso'
 import { TelaPartida } from '../TelaPartida'
 import type { NivelBot } from '../types'
 import { ALFABETO_CODIGO, MAX_JOGADORES, MIN_JOGADORES, TAMANHO_CODIGO, codigoValido, type ErroSala } from './protocolo'
@@ -151,6 +152,12 @@ function Espera({ codigo, nome, onSair }: { codigo: string; nome: string; onSair
   const [nivel, setNivel] = useState<NivelBot>('medio')
   const [bots, setBots] = useState(0)
   const link = `${location.origin}/sala/${codigo}`
+
+  // a carta que acabou de sair entra na memória do aparelho, junto com as do modo solo
+  const cartaId = sala?.visao?.rodada.cartaId ?? null
+  useEffect(() => {
+    if (cartaId) marcarCartaVista(cartaId)
+  }, [cartaId])
 
   async function compartilhar() {
     try {

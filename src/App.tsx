@@ -57,7 +57,7 @@ function Home({ onJogar }: { onJogar: (id: string) => void }) {
             <span className="emoji">🕵️</span>
             <span className="textos">
               <strong>Adivinhaí</strong>
-              <small>20 pistas, 1 resposta. Jogue com bots</small>
+              <small>Descubra a resposta com o mínimo de pistas. Contra bots ou online com amigos</small>
             </span>
             <span className="jogar">Jogar ▶</span>
           </button>

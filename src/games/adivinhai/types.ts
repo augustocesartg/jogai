@@ -79,6 +79,8 @@ export type Evento =
 export interface Estado {
   jogadores: Jogador[]
   mediador: number
+  /** fração de casa (em %) do Mediador ainda não convertida em avanço, quando ele anda mais devagar */
+  mediadorAcumulo: number
   rodadaNum: number
   /** dificuldade escolhida: define o peso de cada nível de carta no sorteio */
   nivelCartas: NivelBot
@@ -101,5 +103,5 @@ export type Acao =
   | { tipo: 'passar' }
   | { tipo: 'proxima' }
 
-export const CASAS = 40
+export const CASAS = 50
 export const TOTAL_ITENS = 20

@@ -5,8 +5,10 @@ export interface VisaoRodada extends Omit<Rodada, 'carta' | 'itens'> {
   categoria: Categoria
   /** mesma posição de `Rodada.itens`; null enquanto o número não foi escolhido */
   itens: (Item | null)[]
-  /** só preenchida quando a rodada termina */
+  /** só preenchidas quando a rodada termina */
   resposta: string | null
+  /** id da carta, para o aparelho lembrar que ela já saiu */
+  cartaId: string | null
 }
 
 export interface Visao extends Omit<Estado, 'rodada' | 'cartasUsadas'> {
@@ -24,6 +26,7 @@ export function visaoDe(e: Estado): Visao {
       categoria: carta.categoria,
       itens: itens.map((item, i) => (r.usados.includes(i + 1) ? item : null)),
       resposta: r.fase === 'fim' ? carta.resposta : null,
+      cartaId: r.fase === 'fim' ? carta.id : null,
     },
   }
 }

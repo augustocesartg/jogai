@@ -38,7 +38,7 @@ export function Configuracao({ onJogar, onOnline, onSair }: Props) {
         <Mascote pose="detetive" tamanho={120} />
         <div>
           <h1>Adivinhaí</h1>
-          <p className="sub">20 pistas, 1 resposta</p>
+          <p className="sub">Quanto menos pistas, mais casas você avança</p>
         </div>
       </div>
 
@@ -88,7 +88,7 @@ export function Configuracao({ onJogar, onOnline, onSair }: Props) {
           <li>Cada rodada tem uma carta secreta: pessoa, lugar, coisa, ano ou mundo digital.</li>
           <li>Na sua vez, escolha um número de 1 a 20 para ouvir uma pista, e então dê um palpite ou passe.</li>
           <li>Quem acerta avança <b>20 − pistas usadas</b> casas. Menos pistas, mais casas!</li>
-          <li>O <b>Mediador</b> também tem um peão e avança 1 casa a cada pista que não leva ao acerto.</li>
+          <li>O <b>Mediador</b> também tem um peão e avança a cada pista que não leva ao acerto (1 casa; com 3 ou mais jogadores ele anda um pouco mais devagar, para ficar justo).</li>
           <li>Alguns números escondem comandos: perca a vez, avance 2, volte 1 ou escolha outro número.</li>
           <li>Quem chegar à casa {CASAS} primeiro vence, jogador ou Mediador.</li>
         </ul>

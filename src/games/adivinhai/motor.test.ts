@@ -40,6 +40,24 @@ function estadoFixo(nJogadores = 2): Estado {
 const rng = criarRng(99)
 const passo = (e: Estado, a: Parameters<typeof aplicar>[1]) => aplicar(e, a, CARTAS, rng)
 
+describe('Mediador mais lento em grupo', () => {
+  it('com 1 e 2 jogadores avança 1 casa por pista sem acerto; com 6 anda mais devagar', () => {
+    const cartas = CARTAS
+    const jogar = (n: number) => {
+      const rng = criarRng(3)
+      let e = criarPartida(Array.from({ length: n }, (_, i) => ({ nome: `J${i}`, bot: null })), cartas, rng)
+      for (let i = 0; i < 6; i++) {
+        e = aplicar(e, { tipo: 'escolher', numero: e.rodada.itens.findIndex((it, k) => it.tipo === 'pista' && !e.rodada.usados.includes(k + 1)) + 1 }, cartas, rng)
+        e = aplicar(e, { tipo: 'passar' }, cartas, rng)
+      }
+      return e.mediador
+    }
+    expect(jogar(2)).toBe(6)
+    expect(jogar(6)).toBeLessThan(6)
+    expect(jogar(6)).toBeGreaterThan(0)
+  })
+})
+
 describe('conferirPalpite', () => {
   const c = CARTAS[0]
   it('ignora acentos, caixa, artigos e pontuação', () => {
@@ -217,7 +235,11 @@ describe('sorteio de cartas', () => {
 
   it('reinicia o ciclo quando todas as cartas já foram usadas', () => {
     const e = criarPartida([{ nome: 'A', bot: null }], pool, criarRng(3), { usadas: pool.map((c) => c.id) })
-    expect(e.cartasUsadas).toEqual([e.rodada.carta.id])
+    // as mais recentes ficam de fora do novo ciclo; a nova carta é uma das mais antigas
+    const recentes = pool.slice(-Math.floor(pool.length * 0.2)).map((c) => c.id)
+    expect(recentes).not.toContain(e.rodada.carta.id)
+    expect(e.cartasUsadas.at(-1)).toBe(e.rodada.carta.id)
+    expect(e.cartasUsadas.length).toBe(recentes.length + 1)
   })
 
   it('o nível difícil sorteia mais cartas difíceis que o fácil', () => {

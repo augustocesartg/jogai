@@ -3,7 +3,7 @@
 Site de jogos para o navegador, pensado para o celular. Jogos:
 
 - **Palavras Cruzadas**: palavras de história, artes, ciência e geografia.
-- **Adivinhaí**: 20 pistas, 1 resposta. Jogo de cartas e tabuleiro, solo contra bots (funciona offline).
+- **Adivinhaí**: 20 pistas, 1 resposta. Jogo de cartas e tabuleiro, solo contra bots (funciona offline) ou online com amigos.
 
 **Online:** https://jogai.augustocesartg.workers.dev
 
@@ -19,11 +19,11 @@ Funciona como app instalável (PWA) e abre offline depois da primeira visita.
 - Tela de vitória com resumo de tempo, acertos e ajudas.
 
 **Adivinhaí**
-- Tabuleiro de 40 casas, 5 categorias (pessoa, lugar, coisa, ano e mundo digital) e 100 cartas (20 por categoria) com 18 pistas cada.
+- Tabuleiro de 50 casas, 5 categorias (pessoa, lugar, coisa, ano e mundo digital) e 100 cartas (20 por categoria) com 18 pistas cada.
 - 20 números por rodada: pistas e comandos (perca a vez, avance 2, volte 1, escolha outro número).
-- Quem acerta avança `20 − números usados`. O Mediador (peão do sistema) avança 1 casa por pista sem acerto.
+- Quem acerta avança `20 − números usados`. O Mediador (peão do sistema) avança 1 casa por pista sem acerto; com 3 ou mais jogadores ele anda mais devagar (`taxaMediador` em `motor.ts`), para não vencer demais.
 - Cartas com nível de dificuldade (1 a 3). A dificuldade escolhida (fácil, médio ou difícil) define a força dos bots e quais cartas saem mais: no difícil, predominam as menos conhecidas.
-- O app lembra as cartas já usadas entre partidas e só repete quando todas saíram.
+- O app lembra as cartas já usadas entre partidas (solo e online compartilham a mesma memória do aparelho) e só repete quando todas saíram. Quando o ciclo recomeça, as 20% mais recentes continuam de fora e voltam primeiro as mais antigas.
 - Bots em três níveis, de 0 a 5 por partida. O difícil sempre arrisca um palpite e acerta com cerca de 3 pistas, o médio com 6 a 7 e o fácil com 9 (medido por simulação).
 - Mascote detetive no jogo (comemora quando você acerta).
 - Efeitos sonoros suaves (ondas senoidais com filtro, sem arquivos, funcionam offline) com botão para silenciar, preferência salva no aparelho.
@@ -87,7 +87,7 @@ Regras, validadas por testes:
 A digitação ignora acentos e cedilha, mas a exibição mantém a grafia original.
 
 ## Adivinhaí: cartas e equilíbrio
-O tabuleiro tem 40 casas (`CASAS` em `types.ts`). Cada carta (`src/games/adivinhai/cartas/`, arquivos `*.ts` e `*2.ts` por categoria) tem a resposta, o `nivel` (1 = muito conhecida, 2 = intermediária, 3 = difícil), variações aceitas, chutes errados para os bots e **exatamente 18 pistas** com dificuldade (`f`, `m` ou `d`). A cada rodada, 2 ou 3 comandos entram nos 20 números, em posições sorteadas. Os testes garantem 20 cartas por categoria, 18 pistas e que nenhuma pista contém a resposta.
+O tabuleiro tem 50 casas (`CASAS` em `types.ts`). Cada carta (`src/games/adivinhai/cartas/`, arquivos `*.ts` e `*2.ts` por categoria) tem a resposta, o `nivel` (1 = muito conhecida, 2 = intermediária, 3 = difícil), variações aceitas, chutes errados para os bots e **exatamente 18 pistas** com dificuldade (`f`, `m` ou `d`). A cada rodada, 2 ou 3 comandos entram nos 20 números, em posições sorteadas. Os testes garantem 20 cartas por categoria, 18 pistas e que nenhuma pista contém a resposta.
 
 O motor (`motor.ts`) é puro e não depende de React, para poder rodar também no servidor no modo online.
 
@@ -125,7 +125,8 @@ Salas por link, para 2 a 6 jogadores (humanos e bots). Criar sala gera um códig
 - **Bots:** jogam no servidor, com a mesma lógica do modo solo (`bots.ts`).
 - **Tempo de vez:** 30 s para escolher e 30 s para palpitar; esgotado, o servidor escolhe um número ao acaso ou passa. Quem caiu na própria vez joga sozinho depois de 5 s. A próxima rodada começa sozinha após 20 s. Se ninguém estiver conectado, a partida pausa até alguém voltar.
 - **Entrada e saída:** quem sai no meio da partida volta pelo link e mantém o lugar; novos jogadores não entram depois do início. No fim, o anfitrião (ou qualquer jogador, se ele sumiu) volta todos à sala.
-- **Armazenamento:** salas ficam em Durable Objects (SQLite, plano gratuito) e somem após 6 h sem ninguém conectado. As cartas já usadas na sala são lembradas no servidor.
+- **Cartas:** ao entrar, cada aparelho envia a lista de cartas que já viu; ao iniciar, o servidor une as listas de todos os jogadores (`vistas.ts`) e sorteia só entre as que ninguém viu. Ao fim de cada rodada o servidor envia o id da carta (junto com a resposta) e o aparelho a grava na mesma lista do modo solo.
+- **Armazenamento:** salas ficam em Durable Objects (SQLite, plano gratuito) e somem após 6 h sem ninguém conectado.
 
 ## Ideias futuras
 Mais cartas, teclado virtual nas palavras cruzadas, salvar partida em andamento, botão de compartilhar o resultado e novos jogos (caça-palavras e forca já têm cartão "Em breve" na home).

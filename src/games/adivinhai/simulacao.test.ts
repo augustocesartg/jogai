@@ -14,7 +14,9 @@ describe.skipIf(!import.meta.env.VITE_SIMULAR)('simulação de equilíbrio', () 
       { nome: '1 bot difícil (solo)', niveis: ['dificil'] },
       { nome: '2 bots médios', niveis: ['medio', 'medio'] },
       { nome: '2 bots difíceis', niveis: ['dificil', 'dificil'] },
+      { nome: '3 bots médios', niveis: ['medio', 'medio', 'medio'] },
       { nome: '4 bots médios', niveis: ['medio', 'medio', 'medio', 'medio'] },
+      { nome: '5 bots médios', niveis: ['medio', 'medio', 'medio', 'medio', 'medio'] },
       { nome: '6 bots médios', niveis: ['medio', 'medio', 'medio', 'medio', 'medio', 'medio'] },
     ]
     const N = 2000

@@ -4,6 +4,7 @@ import { CARTAS } from '../src/games/adivinhai/cartas'
 import { aplicar, criarPartida, NOMES_BOTS } from '../src/games/adivinhai/motor'
 import { criarRng } from '../src/games/adivinhai/rng'
 import type { Acao, Estado, NivelBot } from '../src/games/adivinhai/types'
+import { unirVistas } from '../src/games/adivinhai/vistas'
 import { visaoDe } from '../src/games/adivinhai/visao'
 import {
   ALFABETO_CODIGO,
@@ -25,6 +26,8 @@ interface Dados {
   anfitriao: string
   /** partida em andamento: `slots[i]` é o id do jogador que joga como `estado.jogadores[i]` */
   partida: { estado: Estado; slots: string[]; prazo: number | null } | null
+  /** cartas já vistas por cada jogador (enviadas pelo aparelho dele), da mais antiga para a mais recente */
+  vistas: Record<string, string[]>
   /** quando a sala é apagada se ninguém estiver conectado */
   expira: number
 }
@@ -88,7 +91,7 @@ export class Sala extends DurableObject<Env> {
     const url = new URL(req.url)
     if (url.pathname === '/criar') {
       if (await this.dados()) return new Response(null, { status: 409 })
-      const d: Dados = { jogadores: [], anfitriao: '', partida: null, expira: Date.now() + VALIDADE_MS }
+      const d: Dados = { jogadores: [], anfitriao: '', partida: null, vistas: {}, expira: Date.now() + VALIDADE_MS }
       await this.ctx.storage.put('sala', d)
       await this.ctx.storage.setAlarm(d.expira)
       return new Response(null, { status: 201 })
@@ -220,6 +223,10 @@ export class Sala extends DurableObject<Env> {
       for (const w of this.ctx.getWebSockets()) {
         if (w !== ws && (w.deserializeAttachment() as Anexo | null)?.id === msg.id) w.close(4001, 'substituida')
       }
+      d.vistas ??= {}
+      if (Array.isArray(msg.vistas)) {
+        d.vistas[msg.id] = msg.vistas.filter((x) => typeof x === 'string' && x.length <= 80).slice(-200)
+      }
       ws.serializeAttachment({ id: msg.id } satisfies Anexo)
       // quem volta na própria vez (ou com a partida parada) recomeça a contagem
       const p = d.partida
@@ -238,7 +245,9 @@ export class Sala extends DurableObject<Env> {
       if (d.jogadores.length + bots < MIN_JOGADORES) return
       const usados = new Set(d.jogadores.map((j) => j.nome.toLowerCase()))
       const nomesBots = NOMES_BOTS.filter((n) => !usados.has(n.toLowerCase())).concat(NOMES_BOTS.map((n) => `${n} 🤖`))
-      const usadas = (await this.ctx.storage.get<string[]>('cartas')) ?? []
+      // cartas que qualquer jogador da sala já viu (nos aparelhos deles ou nesta sala) ficam por último no sorteio
+      const daSala = (await this.ctx.storage.get<string[]>('cartas')) ?? []
+      const usadas = unirVistas([daSala, ...d.jogadores.map((j) => d.vistas?.[j.id] ?? [])])
       const estado = criarPartida(
         [
           ...d.jogadores.map((j) => ({ nome: j.nome, bot: null })),

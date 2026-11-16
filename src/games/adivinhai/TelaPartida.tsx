@@ -34,19 +34,20 @@ function sonsDe(antes: Visao, depois: Visao, eu: number): Som[] {
 }
 
 /** Transforma os eventos da última ação em avisos que saltam na tela. */
-function avisosDe(e: Visao, eu: number, proximoId: () => number): Aviso[] {
+function avisosDe(e: Visao, eu: number, mediadorAndou: boolean, proximoId: () => number): Aviso[] {
   const quem = (i: number) => (i === eu ? 'Você' : e.jogadores[i].nome)
+  const med = mediadorAndou ? 'Mediador +1' : undefined
   const lista: Omit<Aviso, 'id'>[] = e.eventos.map((ev) => {
     if (ev.tipo === 'comando') {
       const n = quem(ev.jogador)
-      if (ev.comando === 'perca') return { icone: '⏸️', texto: `${n} perde a vez!`, detalhe: 'Mediador +1', tom: 'ruim', ms: 1800 }
-      if (ev.comando === 'avance2') return { icone: '⏩', texto: `${n} avança 2 casas!`, detalhe: 'Mediador +1', tom: 'ok', ms: 1800 }
-      if (ev.comando === 'volte1') return { icone: '⏪', texto: `${n} volta 1 casa!`, detalhe: 'Mediador +1', tom: 'ruim', ms: 1800 }
-      return { icone: '🔁', texto: `${n} escolhe outro número!`, detalhe: 'Mediador +1', tom: 'comando', ms: 1800 }
+      if (ev.comando === 'perca') return { icone: '⏸️', texto: `${n} perde a vez!`, detalhe: med, tom: 'ruim', ms: 1800 }
+      if (ev.comando === 'avance2') return { icone: '⏩', texto: `${n} avança 2 casas!`, detalhe: med, tom: 'ok', ms: 1800 }
+      if (ev.comando === 'volte1') return { icone: '⏪', texto: `${n} volta 1 casa!`, detalhe: med, tom: 'ruim', ms: 1800 }
+      return { icone: '🔁', texto: `${n} escolhe outro número!`, detalhe: med, tom: 'comando', ms: 1800 }
     }
     if (ev.tipo === 'acerto') return { icone: '🎉', texto: `${quem(ev.jogador)} acertou!`, detalhe: `+${ev.casas} casas`, tom: 'ok', ms: 2300 }
     if (ev.tipo === 'erro') {
-      return { icone: ev.passou ? '🙈' : '❌', texto: `${quem(ev.jogador)} ${ev.passou ? 'passou' : 'errou'}`, detalhe: 'Mediador +1', tom: 'ruim', ms: 1500 }
+      return { icone: ev.passou ? '🙈' : '❌', texto: `${quem(ev.jogador)} ${ev.passou ? 'passou' : 'errou'}`, detalhe: med, tom: 'ruim', ms: 1500 }
     }
     if (ev.tipo === 'esgotou') return { icone: '⏰', texto: 'As 20 pistas acabaram!', detalhe: 'Ninguém acertou', tom: 'ruim', ms: 2100 }
     const cat = CATEGORIAS.find((c) => c.id === e.rodada.categoria)!
@@ -94,7 +95,7 @@ export function TelaPartida({ visao: estado, eu, fimEm, agir, onNova, esperaNova
       setFesta(true)
       setTimeout(() => setFesta(false), 2400)
     }
-    const novos = avisosDe(estado, eu, () => ++contadorAviso.current)
+    const novos = avisosDe(estado, eu, estado.mediador > antes.mediador, () => ++contadorAviso.current)
     setAvisos((atual) => [...atual, ...novos].slice(-3))
     for (const n of novos) setTimeout(() => setAvisos((atual) => atual.filter((x) => x.id !== n.id)), n.ms)
     const meu = estado.eventos.some((ev) => 'jogador' in ev && ev.jogador === eu && (ev.tipo === 'acerto' || ev.tipo === 'comando'))
@@ -250,6 +251,17 @@ export function TelaPartida({ visao: estado, eu, fimEm, agir, onNova, esperaNova
           {estado.historico.length === 0 && <li>A partida começou. Boa sorte!</li>}
         </ul>
       </section>
+
+      {estado.vencedor !== null && resumoFechado && (
+        <div className="adv-fimbarra">
+          <strong>{euVenci ? 'Você venceu!' : `${nomeVencedor} venceu!`}</strong>
+          {onNova ? (
+            <button className="primario" onClick={onNova}>Jogar de novo</button>
+          ) : (
+            <span className="adv-espera">{esperaNova}</span>
+          )}
+        </div>
+      )}
 
       {estado.vencedor !== null && !resumoFechado && (
         <div className="vitoria-fundo" role="dialog" aria-modal="true" aria-label="Fim da partida">

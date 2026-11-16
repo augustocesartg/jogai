@@ -322,3 +322,6 @@ body {
 
 .adv-contagem { text-align: center; font-weight: 700; margin: 4px 0; color: var(--suave); }
 .adv-contagem.urgente { color: #DC2626; }
+
+.adv-fimbarra { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; margin: 16px -16px 0; background: var(--bg); border-top: 1px solid rgba(128, 128, 128, 0.3); }
+.adv-fimbarra .primario { flex: none; }

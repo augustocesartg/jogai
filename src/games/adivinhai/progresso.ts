@@ -45,6 +45,12 @@ export function lerCartasUsadas(): string[] {
   }
 }
 
+/** Marca uma carta como vista (a mais recente vai para o fim da lista). */
+export function marcarCartaVista(id: string) {
+  const lista = lerCartasUsadas().filter((x) => x !== id)
+  gravarCartasUsadas([...lista, id].slice(-300))
+}
+
 export function gravarCartasUsadas(ids: string[]) {
   try {
     localStorage.setItem(K_CARTAS, JSON.stringify(ids))
