@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { CARTAS } from './cartas'
 import { aplicar, criarPartida } from './motor'
-import { criarRng } from './rng'
+import { criarRng } from '../../plataforma/rng'
 import { visaoDe } from './visao'
 
 describe('visaoDe', () => {

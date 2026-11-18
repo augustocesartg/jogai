@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { jogadaBot } from './bots'
 import { aplicar, criarPartida, montarItens } from './motor'
 import { conferirPalpite } from './palpite'
-import { criarRng } from './rng'
+import { criarRng } from '../../plataforma/rng'
 import { CASAS, type Carta, type Estado, type Item } from './types'
 
 function carta(id: string, resposta: string, extra: Partial<Carta> = {}): Carta {

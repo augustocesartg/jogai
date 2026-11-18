@@ -1,5 +1,6 @@
 import { conferirPalpite } from './palpite'
-import { embaralhar, type Rng } from './rng'
+import { embaralhar, type Rng } from '../../plataforma/rng'
+import { CORES } from '../../plataforma/tipos'
 import {
   CASAS,
   TOTAL_ITENS,
@@ -15,7 +16,7 @@ import {
 
 export const NOMES_BOTS = ['Ana', 'Beto', 'Carla', 'Davi', 'Eva']
 
-export const CORES = ['#4F46E5', '#EC4899', '#10B981', '#3B82F6', '#F97316', '#8B5CF6']
+export { CORES }
 
 export interface ConfigJogador {
   nome: string

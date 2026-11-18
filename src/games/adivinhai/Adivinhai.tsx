@@ -1,30 +1,20 @@
 import { useState } from 'react'
 import { Configuracao } from './Configuracao'
-import { Online } from './online/Online'
+import { Online } from '../../plataforma/online/Online'
 import { Partida } from './Partida'
-import { lerConfig, type ConfigAdivinhai } from './progresso'
+import type { ConfigAdivinhai } from './progresso'
 
-interface Props {
-  onSair: () => void
-  // código vindo do link /sala/XXXX
-  salaInicial?: string
-}
-
-export function Adivinhai({ onSair, salaInicial }: Props) {
+export function Adivinhai({ onSair }: { onSair: () => void }) {
   const [config, setConfig] = useState<ConfigAdivinhai | null>(null)
   const [rodada, setRodada] = useState(0)
-  const [convite, setConvite] = useState(salaInicial)
-  const [online, setOnline] = useState<string | null>(() => (salaInicial ? lerConfig().nome || 'Você' : null))
+  const [online, setOnline] = useState<string | null>(null)
 
   if (online !== null) {
     return (
       <Online
+        jogo="adivinhai"
         nome={online}
-        codigoInicial={convite}
-        onSair={() => {
-          setConvite(undefined)
-          setOnline(null)
-        }}
+        onSair={() => setOnline(null)}
       />
     )
   }

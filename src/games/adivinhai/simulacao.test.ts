@@ -2,7 +2,7 @@ import { describe, it } from 'vitest'
 import { jogadaBot } from './bots'
 import { CARTAS } from './cartas'
 import { aplicar, criarPartida } from './motor'
-import { criarRng } from './rng'
+import { criarRng } from '../../plataforma/rng'
 import type { NivelBot } from './types'
 
 // Rode com: VITE_SIMULAR=1 npx vitest run src/games/adivinhai/simulacao.test.ts

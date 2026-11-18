@@ -4,6 +4,7 @@ Site de jogos para o navegador, pensado para o celular. Jogos:
 
 - **Palavras Cruzadas**: palavras de história, artes, ciência e geografia.
 - **Adivinhaí**: 20 pistas, 1 resposta. Jogo de cartas e tabuleiro, solo contra bots (funciona offline) ou online com amigos.
+- **Perguntaí**: roleta de categorias, perguntas de múltipla escolha, curingas e duelos. Solo contra bots, offline.
 
 **Online:** https://jogai.augustocesartg.workers.dev
 
@@ -50,11 +51,18 @@ npm run preview  # serve o build (útil para testar o PWA)
 ## Estrutura
 ```
 src/
-  App.tsx                         home e navegação entre jogos
+  App.tsx                         home e navegação entre jogos (cada jogo é carregado sob demanda)
+  plataforma/                     o que serve a qualquer jogo
+    jogo.ts                       contrato que um jogo implementa para rodar na sala online
+    jogos.ts                      jogos com modo online, no navegador
+    rng.ts, sons.ts, vistas.ts    sorteio com semente, motor de sons e memória do que já saiu
+    online/                       protocolo, conexão (`useSala`) e telas de sala (criar, convite, espera)
   components/Mascote.tsx          mascote em SVG (boas-vindas, escritor, comemorando, detetive)
   games/adivinhai/
     motor.ts                      regras do jogo (função pura, usada no navegador e no servidor)
     visao.ts                      o que o jogador pode ver (sem a resposta), usado no online
+    servidor.ts                   o jogo no contrato da sala online (roda no Durable Object)
+    online.ts, ComponentesOnline.tsx   o jogo no navegador: opções do anfitrião e tela da partida online
     TelaPartida.tsx               tela da partida (local e online)
     bots.ts                       decisões dos bots (calibradas por simulação)
     sons.ts                       efeitos sonoros com WebAudio
@@ -69,8 +77,8 @@ src/
     banco.ts, data/               banco de palavras
     progresso.ts                  preferências, histórico e estatísticas (localStorage)
     gerador.test.ts               testes do gerador e do banco
-worker/index.ts                   Worker + Durable Object das salas online
-  games/adivinhai/online/           protocolo (compartilhado), hook de conexão e telas da sala
+worker/index.ts                   Worker + Durable Object das salas online (genérico)
+worker/jogos.ts                   jogos disponíveis nas salas, pelo id
 public/                           manifesto, service worker, favicon e ícones
 design/                           fontes do ícone e script que gera os PNGs
 ```
@@ -102,8 +110,10 @@ Guardados em `localStorage`, só no aparelho do jogador:
 - `jogai:cruzadas:vistas`: palavras já usadas, para evitar repetição.
 - `jogai:stats`: palavras acertadas e sequência de dias.
 - `jogai:adivinhai:config`: nome, número e nível dos bots do Adivinhaí.
-- `jogai:adivinhai:som`: som ligado (`1`) ou desligado (`0`).
+- `jogai:som`: som ligado (`1`) ou desligado (`0`) (antes era `jogai:adivinhai:som`, ainda lida).
+- `jogai:id`: identificador do jogador nas salas online (antes `jogai:adivinhai:id`, ainda lido).
 - `jogai:adivinhai:cartas`: cartas do Adivinhaí já usadas, para não repetir.
+- `jogai:perguntai:config` e `jogai:perguntai:perguntas`: configuração e perguntas já vistas do Perguntaí.
 
 ## Deploy (Cloudflare)
 O site é publicado como Worker com arquivos estáticos (`wrangler.jsonc` aponta para `./dist`, com rotas desconhecidas tratadas como página única).
@@ -114,11 +124,35 @@ O repositório está conectado ao Cloudflare: um push na branch `main` dispara o
 
 ## PWA
 - `public/manifest.webmanifest`: nome, cores e ícones.
-- `public/sw.js`: service worker. Na instalação guarda a página e os JS/CSS que ela usa; depois responde do cache e atualiza em segundo plano (stale-while-revalidate). Os scripts de módulo exigem `ignoreVary` na busca no cache, não remova.
+- `public/sw.js`: service worker. Na instalação guarda a página e todos os arquivos do build (lista `precache.json`, gerada pelo plugin em `vite.config.ts`), inclusive os pedaços de cada jogo carregados sob demanda; depois responde do cache e atualiza em segundo plano (stale-while-revalidate). Os scripts de módulo exigem `ignoreVary` na busca no cache, não remova.
 - Se uma atualização não aparecer nos aparelhos, incremente `CACHE` em `public/sw.js`.
 - Para regenerar os ícones PNG: `python3 design/gerar-icones.py public`.
 
+## Perguntaí
+Segundo jogo, adaptação própria das regras de um jogo de tabuleiro de perguntas (nome, perguntas e visual próprios). Já dá para jogar sozinho contra 1 a 5 bots, offline. O modo online ainda não existe (próxima etapa).
+
+Telas (`src/games/perguntai/`): configuração (nome, bots, dificuldade e duração: curta com 3 fichas, média com 4 ou completa com 6), roleta animada, carta de pergunta com 4 alternativas, placar com trilha e fichas de cada jogador, curingas, escolha de categoria na Coroa, desafio de duelo e tela de fim de partida. A `TelaPartida` só mostra a `Visao` e envia ações, para ser reaproveitada no online. Os bots esperam a roleta parar e "pensam" um pouco antes de agir (mais no duelo, para dar tempo de responder). As perguntas vistas ficam em `jogai:perguntai:perguntas`, e a configuração em `jogai:perguntai:config`. No solo não há tempo limite por pergunta.
+
+Motor, visão e bots ficam em `motor.ts`, `visao.ts` e `bots.ts`, e o banco de 360 perguntas em `perguntas/`.
+
+Regras implementadas:
+- Roleta com 6 categorias (Ciências, Arte, Esportes, Entretenimento, Geografia e História) e a Coroa. Cada jogador tem uma trilha de 4 casas: 3 de avanço e a Coroa.
+- Pergunta com 4 alternativas. Acertar avança uma casa e mantém a vez; errar passa a vez (tempo esgotado conta como erro).
+- Na Coroa da trilha, escolhe uma categoria que ainda não tem e responde valendo a ficha: acertando, leva a ficha, a trilha volta a zero e continua jogando; errando, volta ao início da trilha. Tirar a Coroa na roleta vale o mesmo, mas errar só passa a vez.
+- Curingas, 1 de cada por jogador e uso único: Bomba (elimina 2 erradas), Chance dupla (segunda tentativa), Tiro extra (gira de novo, antes de responder ou depois de errar) e Passar (troca a pergunta). Um por pergunta, e não valem no duelo.
+- Duelo (3 ou mais jogadores): na Coroa, desafia alguém que tenha uma ficha que ele não tem, apostando uma ficha sua que o outro não tem. Os dois respondem à mesma pergunta e quem acertar primeiro leva a ficha; se os dois errarem, nada muda. Em qualquer caso a trilha do desafiante volta a zero.
+- Vence quem reunir as 6 fichas (configurável: `fichasParaVencer`, útil para partidas curtas).
+
+Banco de perguntas: 60 por categoria, em `src/games/perguntai/perguntas/` (um arquivo por categoria, no formato `q(nivel, 'pergunta', 'certa', 'errada 1', 'errada 2', 'errada 3')`, nível 1 = fácil, 2 = média, 3 = difícil). As alternativas são embaralhadas a cada sorteio. O id é um hash do texto: ao editar o texto de uma pergunta, ela passa a contar como nova. Os testes garantem 60 por categoria, 4 alternativas diferentes, texto terminado em `?` sem a resposta dentro, alternativas curtas e uma mistura de níveis. As perguntas evitam fatos que mudam com o tempo.
+
+Para medir duração e equilíbrio com bots (4 jogadores e 6 fichas: cerca de 65 perguntas por partida):
+```bash
+VITE_SIMULAR=1 npx vitest run src/games/perguntai/simulacao.test.ts --reporter=verbose
+```
+
 ## Modo online
+A sala é genérica: o Durable Object (`worker/index.ts`) cuida de jogadores, reconexão, anfitrião, tempo de vez e jogadas automáticas, e delega as regras ao jogo escolhido (`worker/jogos.ts`, contrato em `src/plataforma/jogo.ts`). Para ligar um jogo novo: implementar `JogoServidor` (puro) e `JogoCliente` (opções do anfitrião e tela da partida) e registrá-los nos dois `jogos.ts`.
+
 Salas por link, para 2 a 6 jogadores (humanos e bots). Criar sala gera um código de 4 letras; o link `/sala/ABCD` leva direto à sala.
 - **Sala:** lista de jogadores em tempo real, reconexão automática e anfitrião. O anfitrião escolhe a dificuldade e quantos bots completam a sala (mínimo de 2 jogadores no total) e inicia.
 - **Partida:** roda no Durable Object com o mesmo `motor.ts`. O navegador só recebe a `Visao` (`visao.ts`): categoria, pistas já escolhidas e, no fim da rodada, a resposta. As jogadas são validadas no servidor (só joga quem está na vez).

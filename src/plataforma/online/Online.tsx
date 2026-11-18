@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react'
-import { Mascote } from '../../../components/Mascote'
-import { marcarCartaVista } from '../progresso'
-import { TelaPartida } from '../TelaPartida'
-import type { NivelBot } from '../types'
-import { ALFABETO_CODIGO, MAX_JOGADORES, MIN_JOGADORES, TAMANHO_CODIGO, codigoValido, type ErroSala } from './protocolo'
+import { useState } from 'react'
+import { Mascote } from '../../components/Mascote'
+import { JOGOS_CLIENTE } from '../jogos'
+import { ALFABETO_CODIGO, MAX_JOGADORES, TAMANHO_CODIGO, codigoValido, type ErroSala } from './protocolo'
 import { criarSala, useSala } from './useSala'
 
 interface Props {
+  /** jogo para o qual criar a sala (quando se chega pelo menu do jogo) */
+  jogo?: string
   nome: string
   codigoInicial?: string
   onSair: () => void
@@ -27,7 +27,7 @@ function irParaSala(codigo: string | null) {
   }
 }
 
-export function Online({ nome: nomeInicial, codigoInicial, onSair }: Props) {
+export function Online({ jogo, nome: nomeInicial, codigoInicial, onSair }: Props) {
   const [nome, setNome] = useState(nomeInicial)
   // quem chega por um link confirma o nome antes de entrar
   const [confirmado, setConfirmado] = useState(!codigoInicial)
@@ -41,11 +41,15 @@ export function Online({ nome: nomeInicial, codigoInicial, onSair }: Props) {
     irParaSala(null)
     setCodigo(null)
   }
+  function sairDoOnline() {
+    irParaSala(null)
+    onSair()
+  }
 
   if (codigo && !confirmado) {
     return (
       <main className="config adv-config">
-        <button className="voltar" onClick={onSair}>← Adivinhaí</button>
+        <button className="voltar" onClick={sairDoOnline}>← Voltar</button>
         <div className="config-topo">
           <Mascote pose="detetive" tamanho={120} />
           <div>
@@ -73,18 +77,16 @@ export function Online({ nome: nomeInicial, codigoInicial, onSair }: Props) {
   if (!codigo) {
     return (
       <Entrada
+        jogo={jogo ?? 'adivinhai'}
         onEntrar={entrar}
-        onSair={() => {
-          irParaSala(null)
-          onSair()
-        }}
+        onSair={sairDoOnline}
       />
     )
   }
   return <Espera key={codigo} codigo={codigo} nome={nome} onSair={voltar} />
 }
 
-function Entrada({ onEntrar, onSair }: { onEntrar: (c: string) => void; onSair: () => void }) {
+function Entrada({ jogo, onEntrar, onSair }: { jogo: string; onEntrar: (c: string) => void; onSair: () => void }) {
   const [texto, setTexto] = useState('')
   const [criando, setCriando] = useState(false)
   const [falha, setFalha] = useState('')
@@ -94,7 +96,7 @@ function Entrada({ onEntrar, onSair }: { onEntrar: (c: string) => void; onSair: 
     setCriando(true)
     setFalha('')
     try {
-      onEntrar(await criarSala())
+      onEntrar(await criarSala(jogo))
     } catch {
       setFalha('Não foi possível criar a sala. Verifique a conexão e tente de novo.')
       setCriando(false)
@@ -103,7 +105,7 @@ function Entrada({ onEntrar, onSair }: { onEntrar: (c: string) => void; onSair: 
 
   return (
     <main className="config adv-config">
-      <button className="voltar" onClick={onSair}>← Adivinhaí</button>
+      <button className="voltar" onClick={onSair}>← {JOGOS_CLIENTE[jogo]?.nome ?? 'Voltar'}</button>
       <div className="config-topo">
         <Mascote pose="detetive" tamanho={120} />
         <div>
@@ -149,20 +151,13 @@ function Entrada({ onEntrar, onSair }: { onEntrar: (c: string) => void; onSair: 
 function Espera({ codigo, nome, onSair }: { codigo: string; nome: string; onSair: () => void }) {
   const { sala, fimEm, conexao, erro, sair, enviar } = useSala(codigo, nome)
   const [copiado, setCopiado] = useState(false)
-  const [nivel, setNivel] = useState<NivelBot>('medio')
-  const [bots, setBots] = useState(0)
   const link = `${location.origin}/sala/${codigo}`
-
-  // a carta que acabou de sair entra na memória do aparelho, junto com as do modo solo
-  const cartaId = sala?.visao?.rodada.cartaId ?? null
-  useEffect(() => {
-    if (cartaId) marcarCartaVista(cartaId)
-  }, [cartaId])
+  const jogo = sala ? JOGOS_CLIENTE[sala.jogo] : undefined
 
   async function compartilhar() {
     try {
       if (navigator.share) {
-        await navigator.share({ title: 'Adivinhaí', text: 'Bora jogar Adivinhaí comigo?', url: link })
+        await navigator.share({ title: jogo?.nome ?? 'Jogaí', text: `Bora jogar ${jogo?.nome ?? 'Jogaí'} comigo?`, url: link })
         return
       }
       await navigator.clipboard.writeText(link)
@@ -189,9 +184,9 @@ function Espera({ codigo, nome, onSair }: { codigo: string; nome: string; onSair
 
   const souAnfitriao = sala?.anfitriao === sala?.voce
 
-  if (sala?.visao) {
+  if (sala?.visao && jogo) {
     return (
-      <TelaPartida
+      <jogo.Partida
         visao={sala.visao}
         eu={sala.eu}
         fimEm={fimEm}
@@ -205,9 +200,6 @@ function Espera({ codigo, nome, onSair }: { codigo: string; nome: string; onSair
     )
   }
   const humanos = sala?.jogadores.length ?? 0
-  const maxBots = MAX_JOGADORES - humanos
-  const botsAtuais = Math.min(bots, maxBots)
-  const podeIniciar = souAnfitriao && humanos + botsAtuais >= MIN_JOGADORES
 
   return (
     <main className="config adv-config">
@@ -241,31 +233,8 @@ function Espera({ codigo, nome, onSair }: { codigo: string; nome: string; onSair
         </ul>
       </div>
 
-      {souAnfitriao ? (
-        <>
-          <div className="adv-campo">
-            <span>Dificuldade das cartas</span>
-            <div className="chips">
-              {(['facil', 'medio', 'dificil'] as const).map((n) => (
-                <button key={n} className={'chip' + (nivel === n ? ' ativo' : '')} aria-pressed={nivel === n} onClick={() => setNivel(n)}>
-                  {n === 'facil' ? 'Fácil' : n === 'medio' ? 'Médio' : 'Difícil'}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="adv-campo">
-            <span>Bots para completar a sala</span>
-            <div className="adv-stepper">
-              <button onClick={() => setBots(Math.max(0, botsAtuais - 1))} aria-label="Menos um bot" disabled={botsAtuais === 0}>−</button>
-              <b>{botsAtuais}</b>
-              <button onClick={() => setBots(Math.min(maxBots, botsAtuais + 1))} aria-label="Mais um bot" disabled={botsAtuais >= maxBots}>+</button>
-            </div>
-          </div>
-          <button className="primario adv-jogar" disabled={!podeIniciar} onClick={() => enviar({ t: 'iniciar', nivel, bots: botsAtuais })}>
-            Iniciar partida
-          </button>
-          {!podeIniciar && <small>Precisa de pelo menos {MIN_JOGADORES} jogadores (você pode completar com bots).</small>}
-        </>
+      {souAnfitriao && jogo ? (
+        <jogo.Lobby humanos={humanos} onIniciar={(opcoes) => enviar({ t: 'iniciar', opcoes })} />
       ) : (
         <small>O anfitrião inicia a partida quando todos entrarem.</small>
       )}

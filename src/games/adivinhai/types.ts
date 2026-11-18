@@ -38,7 +38,8 @@ export type Item =
   | { tipo: 'pista'; texto: string; dif: Dif }
   | { tipo: 'comando'; comando: Comando }
 
-export type NivelBot = 'facil' | 'medio' | 'dificil'
+import type { NivelBot } from '../../plataforma/tipos'
+export type { NivelBot }
 
 export interface Jogador {
   id: string

@@ -1,4 +1,8 @@
-/** Efeitos sonoros sintetizados com WebAudio: sem arquivos, funcionam offline. */
+import { criarSons, type Nota } from '../../plataforma/sons'
+
+export { definirSom, somLigado } from '../../plataforma/sons'
+
+/** Efeitos sonoros do Adivinhaí (o motor de áudio fica em `plataforma/sons.ts`). */
 export type Som =
   | 'pista'
   | 'acerto'
@@ -12,9 +16,6 @@ export type Som =
   | 'esgotou'
   | 'vitoria'
   | 'derrota'
-
-/** [frequência em Hz, duração em s, volume] — só ondas senoidais, curtas e com volume baixo */
-type Nota = [number, number, number?]
 
 const SONS: Record<Som, Nota[]> = {
   pista: [[587, 0.12, 0.07]],
@@ -31,80 +32,4 @@ const SONS: Record<Som, Nota[]> = {
   derrota: [[392, 0.24, 0.06], [349, 0.24, 0.06], [330, 0.24, 0.06], [294, 0.5, 0.06]],
 }
 
-const CHAVE = 'jogai:adivinhai:som'
-
-function lerPreferencia(): boolean {
-  try {
-    return localStorage.getItem(CHAVE) !== '0'
-  } catch {
-    return true
-  }
-}
-
-let ligado = lerPreferencia()
-let ctx: AudioContext | null = null
-
-export const somLigado = () => ligado
-
-export function definirSom(valor: boolean) {
-  ligado = valor
-  try {
-    localStorage.setItem(CHAVE, valor ? '1' : '0')
-  } catch {
-    /* sem armazenamento: vale só nesta sessão */
-  }
-}
-
-function contexto(): AudioContext | null {
-  if (ctx) return ctx
-  if (typeof window === 'undefined') return null
-  const Construtor =
-    window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
-  if (!Construtor) return null
-  try {
-    ctx = new Construtor()
-  } catch {
-    ctx = null
-  }
-  return ctx
-}
-
-let mestre: GainNode | null = null
-
-/** Saída comum com filtro passa-baixa, para tirar qualquer aspereza dos tons. */
-function saida(c: AudioContext): AudioNode {
-  if (!mestre) {
-    const filtro = c.createBiquadFilter()
-    filtro.type = 'lowpass'
-    filtro.frequency.value = 1800
-    mestre = c.createGain()
-    mestre.gain.value = 0.8
-    mestre.connect(filtro).connect(c.destination)
-  }
-  return mestre
-}
-
-/** Toca um ou vários sons em sequência. Seguro de chamar sem áudio disponível. */
-export function tocar(sons: Som | Som[]) {
-  if (!ligado) return
-  const c = contexto()
-  if (!c) return
-  if (c.state === 'suspended') void c.resume()
-  let t = c.currentTime + 0.02
-  for (const som of Array.isArray(sons) ? sons : [sons]) {
-    for (const [freq, dur, volume = 0.09] of SONS[som]) {
-      const osc = c.createOscillator()
-      const ganho = c.createGain()
-      osc.type = 'sine'
-      osc.frequency.value = freq
-      ganho.gain.setValueAtTime(0.0001, t)
-      ganho.gain.exponentialRampToValueAtTime(volume, t + 0.03)
-      ganho.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.08)
-      osc.connect(ganho).connect(saida(c))
-      osc.start(t)
-      osc.stop(t + dur + 0.12)
-      t += dur
-    }
-    t += 0.06
-  }
-}
+export const tocar = criarSons(SONS)

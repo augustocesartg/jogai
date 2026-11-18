@@ -1,16 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { lerCartasUsadas } from '../progresso'
+import { JOGOS_CLIENTE } from '../jogos'
 import type { Cliente, ErroSala, Servidor } from './protocolo'
 
 export type Sala = Extract<Servidor, { t: 'sala' }>
 export type Conexao = 'conectando' | 'conectado' | 'reconectando'
 
-const CHAVE_ID = 'jogai:adivinhai:id'
+const CHAVE_ID = 'jogai:id'
+const CHAVE_ID_ANTIGA = 'jogai:adivinhai:id'
 
 export function meuId() {
   try {
-    const salvo = localStorage.getItem(CHAVE_ID)
-    if (salvo) return salvo
+    const salvo = localStorage.getItem(CHAVE_ID) ?? localStorage.getItem(CHAVE_ID_ANTIGA)
+    if (salvo) {
+      localStorage.setItem(CHAVE_ID, salvo)
+      return salvo
+    }
   } catch {
     // sem armazenamento: o id vale só nesta sessão
   }
@@ -23,8 +27,8 @@ export function meuId() {
   return id
 }
 
-export async function criarSala(): Promise<string> {
-  const r = await fetch('/api/sala', { method: 'POST' })
+export async function criarSala(jogo: string): Promise<string> {
+  const r = await fetch('/api/sala', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ jogo }) })
   if (!r.ok) throw new Error('falha ao criar sala')
   return ((await r.json()) as { codigo: string }).codigo
 }
@@ -42,9 +46,11 @@ export function useSala(codigo: string, nome: string) {
     nomeRef.current = nome
   }, [nome])
   const encerrado = useRef(false)
+  const jogoRef = useRef<string | null>(null)
 
   useEffect(() => {
     encerrado.current = false
+    jogoRef.current = null
     let tentativa = 0
     let timer: ReturnType<typeof setTimeout> | undefined
     let ping: ReturnType<typeof setInterval> | undefined
@@ -55,7 +61,7 @@ export function useSala(codigo: string, nome: string) {
       wsRef.current = ws
       ws.onopen = () => {
         tentativa = 0
-        const msg: Cliente = { t: 'entrar', id: meuId(), nome: nomeRef.current, vistas: lerCartasUsadas().slice(-200) }
+        const msg: Cliente = { t: 'entrar', id: meuId(), nome: nomeRef.current }
         ws.send(JSON.stringify(msg))
         clearInterval(ping)
         ping = setInterval(() => ws.readyState === 1 && ws.send(JSON.stringify({ t: 'ping' } satisfies Cliente)), 25000)
@@ -63,6 +69,12 @@ export function useSala(codigo: string, nome: string) {
       ws.onmessage = (e) => {
         const msg = JSON.parse(e.data as string) as Servidor
         if (msg.t === 'sala') {
+          // assim que a sala diz qual é o jogo, envia o que este aparelho já viu dele
+          if (!jogoRef.current) {
+            jogoRef.current = msg.jogo
+            const lista = JOGOS_CLIENTE[msg.jogo]?.lerVistas().slice(-200) ?? []
+            ws.send(JSON.stringify({ t: 'vistas', lista } satisfies Cliente))
+          }
           setSala(msg)
           setFimEm(msg.restante === null ? null : Date.now() + msg.restante)
           setConexao('conectado')

@@ -1,4 +1,4 @@
-import type { Rng } from './rng'
+import type { Rng } from '../../plataforma/rng'
 import type { Acao, Dif, Estado, NivelBot, NivelCarta } from './types'
 
 const PESO: Record<Dif, number> = { f: 0.14, m: 0.08, d: 0.04 }
