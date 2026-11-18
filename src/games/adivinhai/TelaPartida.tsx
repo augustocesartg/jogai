@@ -121,7 +121,10 @@ export function TelaPartida({ visao: estado, eu, fimEm, agir, onNova, esperaNova
     <main className="jogo adv-jogo">
       <header className="barra">
         <button className="voltar" onClick={onSair}>{rotuloSair}</button>
-        <span className="adv-rodada">Rodada {estado.rodadaNum}</span>
+        <span className="adv-rodada titulo-vez">
+          <Mascote className="mascote-mini" pose={festa ? 'comemorando' : 'detetive'} tamanho={30} />
+          Rodada {estado.rodadaNum}
+        </span>
         <button
           className="adv-som"
           aria-label={som ? 'Desligar o som' : 'Ligar o som'}
@@ -166,7 +169,6 @@ export function TelaPartida({ visao: estado, eu, fimEm, agir, onNova, esperaNova
       {fimEm != null && estado.vencedor === null && !jogador.bot && <Contagem key={fimEm} fimEm={fimEm} fase={r.fase} />}
 
       <section className="adv-painel" aria-live="polite">
-        <Mascote className="adv-mascote" pose={festa ? 'comemorando' : 'detetive'} tamanho={66} />
         {r.fase === 'escolher' && (
           <>
             <h2>{minhaVez ? 'Sua vez! Escolha um número' : `${jogador.nome} está escolhendo…`}</h2>

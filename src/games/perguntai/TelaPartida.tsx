@@ -251,7 +251,10 @@ export function TelaPartida({ visao: e, eu, fimEm, agir, onNova, esperaNova, onS
     <main className="jogo pg-jogo">
       <header className="barra">
         <button className="voltar" onClick={onSair}>{rotuloSair}</button>
-        <span className="adv-rodada">{e.vencedor === null ? `Vez de ${nomeVez}` : 'Fim de jogo'}</span>
+        <span className="adv-rodada titulo-vez">
+          <Mascote className="mascote-mini" pose={festa ? 'comemorando' : 'detetive'} tamanho={30} />
+          {e.vencedor === null ? `Vez de ${nomeVez}` : 'Fim de jogo'}
+        </span>
         <button
           className="adv-som"
           aria-label={som ? 'Desligar o som' : 'Ligar o som'}
@@ -292,7 +295,6 @@ export function TelaPartida({ visao: e, eu, fimEm, agir, onNova, esperaNova, onS
       {fimEm != null && esperaHumano && <Contagem key={fimEm} fimEm={fimEm} fase={e.fase} />}
 
       <section className="pg-painel" aria-live="polite">
-        <Mascote className="adv-mascote" pose={festa ? 'comemorando' : 'detetive'} tamanho={60} />
 
         {girando && (
           <div className="pg-centro">

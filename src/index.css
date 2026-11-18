@@ -416,3 +416,11 @@ body {
   .pg-roleta-gira { animation-duration: 0.01s; }
   .pg-texto { animation: none; }
 }
+
+/* mascote pequeno no título da partida (no lugar de ficar sobre o painel) */
+.titulo-vez { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.adv-painel h2, .pg-painel h2 { padding-right: 0; }
+/* cabeçalho da partida: nada quebra linha, a categoria encolhe se faltar espaço */
+.barra .voltar, .titulo-vez { white-space: nowrap; }
+.adv-jogo .barra { gap: 6px; }
+.adv-categoria { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 38vw; font-size: 0.8rem; padding: 6px 10px; }

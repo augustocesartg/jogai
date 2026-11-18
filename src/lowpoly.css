@@ -1,176 +1,254 @@
 /* ===== estilo low poly (teste) =====
-   Facetas em duas tonalidades, cantos cortados e sombras duras. Carregado depois de index.css. */
+   Facetas em duas tonalidades, cantos cortados e sombras duras. Carregado depois de index.css.
+   Regra de leitura: texto sempre sobre superfície sólida ou sobre o fundo de facetas escuras/claras (nunca sobre os cacos coloridos). */
 
 :root {
-  --bg: #130c2e;
-  --card: #241b56;
-  --texto: #f4f1ff;
-  --suave: #b3abe3;
-  --primaria: #a597ff;
-  --foco: #6b4fd6;
-  --palavra: #3b2f86;
-  --certa: #0f7a56;
+  /* fundo e texto (tema escuro) */
+  --bg: #0f0a24;
+  --f1: #150e33; --f2: #1a1240; --f3: #120b2c;
+  --texto: #f5f3ff;
+  --suave: #c6bff0;
   --borda: #4a3d99;
+  --card: #2c2369;
+  --primaria: #b4a8ff;
+  --palavra: #3d3190;
+  --certa: #12895f;
+  --foco: #ffd23f;
   --grade: transparent;
   --amarelo: #ffd23f;
 
-  /* facetas: tom claro à esquerda, escuro à direita */
-  --fa: #2f2573;
-  --fb: #231a58;
+  /* superfícies: tom claro à esquerda, escuro à direita */
+  --s-fa: #2e2570; --s-fb: #241c5a;
+  --o-fa: #3a2f85; --o-fb: #2e2470;
+  --b-fa: #7c66ff; --b-fb: #5b43e6;
+  --ok-fa: #1bb184; --ok-fb: #0f875f;
+  --erro-fa: #e2456a; --erro-fb: #ad2a4c;
+  --off-fa: #231b55; --off-fb: #1d1647; --off-txt: #9b93d1;
+
+  /* cacos coloridos do fundo */
+  --p-rosa: #e8478f; --p-rosa-2: #b9286f;
+  --p-verde: #19b98a; --p-verde-2: #0f8c67;
+  --p-laranja: #ff8f3a; --p-laranja-2: #e06a17;
+  --p-violeta: #7c66ff;
+
+  /* cantos cortados */
   --c: 12px;
   --recorte: polygon(var(--c) 0, 100% 0, 100% calc(100% - var(--c)), calc(100% - var(--c)) 100%, 0 100%, 0 var(--c));
   --cs: 7px;
   --recorte-s: polygon(var(--cs) 0, 100% 0, 100% calc(100% - var(--cs)), calc(100% - var(--cs)) 100%, 0 100%, 0 var(--cs));
   --recorte-x: polygon(var(--cs) 0, calc(100% - var(--cs)) 0, 100% var(--cs), 100% calc(100% - var(--cs)), calc(100% - var(--cs)) 100%, var(--cs) 100%, 0 calc(100% - var(--cs)), 0 var(--cs));
-  --p-rosa: #e63e93; --p-rosa-2: #b72570;
-  --p-verde: #14b383; --p-verde-2: #0d8a65;
-  --p-laranja: #ff8a2b; --p-laranja-2: #d96a14;
-  --p-violeta: #6b4fd6;
+  --recorte-casa: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
 }
 @media (prefers-color-scheme: light) {
   :root {
-    --bg: #ece7ff;
-    --card: #ffffff;
-    --texto: #1d1540;
-    --suave: #5d5496;
-    --primaria: #5a43dc;
-    --foco: #ffd23f;
-    --palavra: #ddd4ff;
-    --certa: #b6f0d6;
+    --bg: #efeaff;
+    --f1: #ebe5ff; --f2: #e3dbff; --f3: #f3efff;
+    --texto: #1b1440;
+    --suave: #4f4885;
     --borda: #c9bff5;
-    --fa: #ffffff;
-    --fb: #ece6ff;
-    --p-rosa: #ff7ab8; --p-rosa-2: #f04f9c;
-    --p-verde: #4fd9ae; --p-verde-2: #22b98b;
-    --p-laranja: #ffae5e; --p-laranja-2: #ff8f33;
-    --p-violeta: #a597ff;
+    --card: #ffffff;
+    --primaria: #4f37d9;
+    --palavra: #ddd4ff;
+    --certa: #b8f0d8;
+    --s-fa: #ffffff; --s-fb: #f1ecff;
+    --o-fa: #ffffff; --o-fb: #f1ecff;
+    --b-fa: #6c55f2; --b-fb: #4b33d4;
+    --off-fa: #e6e0fb; --off-fb: #dcd4f7; --off-txt: #6c6599;
+    --p-rosa: #f472b6; --p-rosa-2: #ec4899;
+    --p-verde: #34d399; --p-verde-2: #10b981;
+    --p-laranja: #fdba74; --p-laranja-2: #fb923c;
+    --p-violeta: #a78bfa;
   }
 }
 
-body { background: var(--bg); background-image: none; }
+body { background: var(--bg); background-image: none; color: var(--texto); }
 h1, h2, h3 { font-weight: 800; letter-spacing: -0.01em; }
 
 .fundo-poly { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+.f1 { fill: var(--f1); } .f2 { fill: var(--f2); } .f3 { fill: var(--f3); }
 .p-rosa { fill: var(--p-rosa); } .p-rosa-2 { fill: var(--p-rosa-2); }
 .p-verde { fill: var(--p-verde); } .p-verde-2 { fill: var(--p-verde-2); }
 .p-laranja { fill: var(--p-laranja); } .p-laranja-2 { fill: var(--p-laranja-2); }
 .p-violeta { fill: var(--p-violeta); }
 
-/* ===== superfícies facetadas ===== */
+/* ===== superfícies facetadas =====
+   Cada elemento define --fa/--fb; o degradê com parada dura cria as duas facetas. */
 .cartao-jogo, .adv-painel, .pg-painel, .stat, .adv-placar li, .pg-placar li, .dica-ativa, .acoes button,
 .adv-stepper button, .adv-config input, .adv-form input, .pg-opcao, .pg-curinga, .pg-cat, .chip,
-.adv-numeros button, .adv-aviso, .vitoria-tela, .resumo div, .secundario, .primario, .adv-som {
-  border: 0; border-radius: 0; background: linear-gradient(118deg, var(--fa) 0 58%, var(--fb) 58% 100%); box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.22);
+.adv-numeros button, .adv-aviso, .vitoria-tela, .resumo div, .primario, .adv-som, .adv-categoria,
+.adv-lista-sala li, .adv-final li {
+  --fa: var(--s-fa); --fb: var(--s-fb);
+  border: 0; border-radius: 0; color: var(--texto);
+  background: linear-gradient(118deg, var(--fa) 0 58%, var(--fb) 58% 100%);
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.22);
 }
 .cartao-jogo, .adv-painel, .pg-painel, .adv-aviso { clip-path: var(--recorte); }
 .vitoria-tela { clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px); }
 .stat, .adv-placar li, .pg-placar li, .dica-ativa, .acoes button, .adv-stepper button, .adv-config input,
-.adv-form input, .pg-opcao, .pg-curinga, .pg-cat, .chip, .adv-numeros button, .resumo div, .secundario, .primario {
+.adv-form input, .pg-opcao, .pg-curinga, .pg-cat, .chip, .adv-numeros button, .resumo div, .primario, .secundario,
+.adv-categoria, .adv-lista-sala li, .adv-final li {
   clip-path: var(--recorte-s);
 }
 .adv-som { clip-path: var(--recorte-x); }
+.adv-painel, .pg-painel, .adv-final li { box-shadow: none; }
 
-/* foco visível dentro da forma (contorno comum seria cortado) */
+/* foco visível dentro da forma (o contorno comum seria cortado pelo recorte) */
 button:focus-visible, input:focus-visible { outline: none; box-shadow: inset 0 0 0 3px var(--amarelo); }
+.adv-config input:focus, .adv-form input:focus { box-shadow: inset 0 0 0 2px var(--primaria); }
+.adv-config input::placeholder, .adv-form input::placeholder { color: var(--suave); opacity: 0.8; }
 
-/* botões principais */
-.primario {
-  --fa: #8a76ff; --fb: #5d44e0; color: #fff; font-weight: 800; letter-spacing: 0.02em; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
-}
+/* botões */
+.primario { --fa: var(--b-fa); --fb: var(--b-fb); color: #fff; font-weight: 800; letter-spacing: 0.02em; }
 .primario:active, .cartao-jogo.destaque:active { transform: translateY(2px); }
-.primario:disabled { --fa: #4a3d99; --fb: #3b2f86; color: #b3abe3; }
-.secundario { --fa: transparent; --fb: transparent; background: none; color: var(--primaria); box-shadow: inset 0 0 0 2px var(--primaria); }
-.secundario:focus-visible { box-shadow: inset 0 0 0 3px var(--amarelo); }
-.chip.ativo { --fa: #8a76ff; --fb: #5d44e0; color: #fff; font-weight: 800; }
-.adv-stepper button:disabled { opacity: 0.45; }
+.primario:disabled { --fa: var(--off-fa); --fb: var(--off-fb); color: var(--off-txt); box-shadow: none; }
+.secundario { border: 0; border-radius: 0; background: transparent; color: var(--primaria); box-shadow: inset 0 0 0 2px var(--primaria); font-weight: 700; }
+.secundario:disabled { color: var(--off-txt); box-shadow: inset 0 0 0 2px var(--off-txt); }
+.voltar { color: var(--primaria); font-weight: 600; }
+.chip.ativo { --fa: var(--b-fa); --fb: var(--b-fb); color: #fff; font-weight: 800; }
+.adv-stepper button:disabled { --fa: var(--off-fa); --fb: var(--off-fb); color: var(--off-txt); opacity: 1; }
 
-/* cartões da home: uma cor de faceta por jogo */
-.cartao-jogo.destaque { --fa: #8a76ff; --fb: #5d44e0; background: linear-gradient(118deg, var(--fa) 0 58%, var(--fb) 58% 100%); transition: transform 0.1s; }
-.cartao-jogo.destaque.adivinhai { --fa: #1dc596; --fb: #0c8a68; }
-.cartao-jogo.destaque.perguntai { --fa: #f2509b; --fb: #b72570; }
-.cartao-jogo.destaque small { color: rgba(255, 255, 255, 0.85); }
-.cartao-jogo .jogar { border-radius: 0; background: var(--amarelo); clip-path: var(--recorte-s); }
-.cartao-jogo.breve { --fa: #2a2160; --fb: #221a50; opacity: 0.55; box-shadow: none; }
+/* home */
+.logo { color: var(--primaria); }
+.cartao-jogo.destaque { --fa: #7c66ff; --fb: #5b43e6; color: #fff; transition: transform 0.1s; }
+.cartao-jogo.destaque.adivinhai { --fa: #17a97d; --fb: #0c805d; }
+.cartao-jogo.destaque.perguntai { --fa: #e2468c; --fb: #b0256a; }
+.cartao-jogo.destaque strong { color: #fff; }
+.cartao-jogo.destaque small { color: rgba(255, 255, 255, 0.9); }
+.cartao-jogo .jogar { border-radius: 0; background: var(--amarelo); color: #1b1440; clip-path: var(--recorte-s); }
+.cartao-jogo.breve { --fa: var(--off-fa); --fb: var(--off-fb); color: var(--off-txt); opacity: 1; box-shadow: none; }
+.cartao-jogo.breve small { color: var(--off-txt); }
 .stat { box-shadow: none; }
+.secao { color: var(--suave); }
 
 /* placar */
-.adv-placar li.vez, .pg-placar li.vez { --fa: #8a76ff; --fb: #5d44e0; color: #fff; }
-.adv-placar li, .pg-placar li { box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.22); }
-
-/* painéis e cartas de pergunta */
-.adv-painel, .pg-painel { box-shadow: none; padding: 16px; }
-.pg-carta { border-left: 0; padding-left: 0; }
-.pg-carta::before { content: ''; display: block; height: 6px; margin-bottom: 8px; background: var(--cor); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
-.pg-opcao { --fa: #34297a; --fb: #281f62; }
-.pg-opcao b { border-radius: 0; clip-path: var(--recorte-x); background: var(--primaria); color: #1d1540; }
-.pg-opcao.certa { --fa: #17a574; --fb: #0f7a56; color: #fff; }
-.pg-opcao.errada { --fa: #c9345a; --fb: #8f2342; color: #fff; text-decoration: line-through; opacity: 0.9; }
-.pg-opcao.eliminada, .pg-opcao.neutra { opacity: 0.35; }
-.pg-cat {
-  background: linear-gradient(118deg, var(--cor) 0 58%, color-mix(in srgb, var(--cor) 68%, black) 58% 100%);
-  color: #fff; font-weight: 800; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
-}
-.pg-cat small { color: rgba(255, 255, 255, 0.85); }
-.pg-curinga { --fa: #3b2f86; --fb: #2c2266; }
-.pg-curinga:not(:disabled) { --fa: #5d44e0; --fb: #4632b8; color: #fff; }
-.pg-curinga small { color: rgba(255, 255, 255, 0.7); }
-.pg-categoria { text-transform: uppercase; letter-spacing: 0.05em; }
-.pg-trilha i { border: 0; border-radius: 0; background: #1a1240; clip-path: var(--recorte-x); --cs: 4px; }
-.pg-trilha i.feita { background: #8a76ff; }
-.pg-trilha i.coroa { background: #3b2f86; }
+.adv-placar li.vez, .pg-placar li.vez { --fa: var(--b-fa); --fb: var(--b-fb); color: #fff; }
+.adv-placar li, .pg-placar li { box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2); }
+.adv-ponto { border-radius: 0; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); width: 11px; height: 11px; }
+.pg-trilha i { border: 0; border-radius: 0; clip-path: var(--recorte-x); --cs: 4px; background: var(--off-fa); }
+.pg-trilha i.feita { background: #9a8aff; }
+.pg-trilha i.coroa { background: #4a3d99; }
 .pg-trilha i.coroa.feita { background: var(--amarelo); }
-.pg-fichas i { border: 0; border-radius: 0; background: #1a1240; clip-path: polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0 50%); }
+.pg-placar li.vez .pg-trilha i:not(.feita) { background: rgba(0, 0, 0, 0.28); }
+.pg-fichas i { border: 0; border-radius: 0; clip-path: polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0 50%); background: var(--off-fa); width: 13px; height: 13px; }
+.pg-placar li.vez .pg-fichas i:not(.tem) { background: rgba(0, 0, 0, 0.28); }
 .pg-fichas i.tem { border: 0; }
 
-/* Adivinhaí: números, tabuleiro, peões */
-.adv-numeros button { --fa: #4632b8; --fb: #36278f; color: #fff; }
-.adv-numeros button:disabled { --fa: #241b56; --fb: #1c1445; color: #8178c4; }
-.adv-casa { border: 0; border-radius: 0; background: #2a2062; clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px)); }
-.adv-casa.marco { background: #4a3a9e; }
+/* painéis e carta de pergunta */
+.adv-painel, .pg-painel { padding: 16px; }
+.pg-carta { border-left: 0; padding-left: 0; }
+.pg-carta::before { content: ''; display: block; height: 6px; margin-bottom: 10px; background: var(--cor); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+.pg-categoria {
+  display: inline-block; padding: 3px 10px; background: var(--cor); color: #fff; text-transform: uppercase;
+  letter-spacing: 0.05em; font-size: 0.75rem; clip-path: var(--recorte-s); --cs: 5px; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+.pg-valor { color: var(--suave); font-weight: 600; }
+.pg-opcao { --fa: var(--o-fa); --fb: var(--o-fb); }
+.pg-opcao b { border-radius: 0; clip-path: var(--recorte-x); --cs: 6px; background: var(--amarelo); color: #1b1440; }
+.pg-opcao.certa { --fa: var(--ok-fa); --fb: var(--ok-fb); color: #fff; opacity: 1; }
+.pg-opcao.errada { --fa: var(--erro-fa); --fb: var(--erro-fb); color: #fff; opacity: 1; }
+.pg-opcao.certa b, .pg-opcao.errada b { background: #fff; }
+.pg-opcao.eliminada, .pg-opcao.neutra { --fa: var(--off-fa); --fb: var(--off-fb); color: var(--off-txt); opacity: 1; }
+.pg-opcao.eliminada b, .pg-opcao.neutra b { background: var(--off-txt); }
+.pg-cat {
+  background: linear-gradient(118deg, var(--cor) 0 58%, color-mix(in srgb, var(--cor) 70%, black) 58% 100%);
+  color: #fff; font-weight: 800; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+.pg-cat small { color: rgba(255, 255, 255, 0.9); }
+.pg-cat:disabled { background: var(--off-fa); color: var(--off-txt); text-shadow: none; opacity: 1; }
+.pg-cat:disabled small { color: var(--off-txt); }
+.pg-curinga { --fa: var(--off-fa); --fb: var(--off-fb); color: var(--off-txt); opacity: 1; }
+.pg-curinga:disabled { opacity: 1; }
+.pg-curinga small { color: inherit; opacity: 0.85; }
+.pg-curinga:not(:disabled) { --fa: var(--b-fa); --fb: var(--b-fb); color: #fff; }
+.pg-desafios .secundario { text-align: left; }
+.adv-espera { color: var(--suave); }
+
+/* Adivinhaí */
+.adv-numeros button { --fa: #6a55f0; --fb: #5039d1; color: #fff; }
+.adv-numeros button:disabled { --fa: var(--off-fa); --fb: var(--off-fb); color: var(--off-txt); opacity: 1; }
+.adv-pista { color: var(--texto); }
+.adv-resposta { color: var(--amarelo); }
+.adv-casa { border: 0; border-radius: 0; background: #2e2570; clip-path: var(--recorte-casa); }
+.adv-casa.marco { background: #463a9c; }
 .adv-casa.meta { background: var(--amarelo); }
-.adv-num { color: #b3abe3; }
+.adv-num { color: rgba(255, 255, 255, 0.7); }
 .adv-peao { border: 0; border-radius: 0; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); box-shadow: none; }
-.adv-ponto { border-radius: 0; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.adv-categoria { --fa: var(--b-fa); --fb: var(--b-fb); color: #fff; box-shadow: none; }
 
 /* Palavras cruzadas */
-.casa { border: 0; border-radius: 0; background: #2a2062; clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px)); }
-.casa.na-palavra { background: #4a3a9e; }
-.casa.foco { background: #7a5cff; color: #fff; }
+.casa { border: 0; border-radius: 0; background: #3a2f85; clip-path: var(--recorte-casa); color: #fff; }
+.casa.na-palavra { background: #5a46c4; }
+.casa.foco { background: var(--amarelo); color: #1b1440; }
+.casa.foco .num { color: #1b1440; }
 .casa.certa { background: #14a174; color: #fff; }
-.casa .num { color: #cfc8f5; }
-.dicas li button { border-bottom-color: var(--borda); }
+.casa .num { color: rgba(255, 255, 255, 0.75); }
+.dica-ativa small { color: var(--suave); }
 
-/* avisos e fim de partida */
-.adv-aviso { --fa: #2f2573; --fb: #241b56; border: 0; box-shadow: none; }
+/* texto corrido sobre o fundo ganha uma base sólida discreta */
+.adv-historico, .adv-reveladas, .rodape, .dicas { background: color-mix(in srgb, var(--bg) 82%, transparent); padding: 4px 10px; }
+.adv-historico li, .adv-reveladas li, .dicas li button { color: var(--texto); }
+.adv-historico li { color: var(--suave); }
+.pg-meta { color: var(--suave); }
+
+/* avisos, sala e fim de partida */
+.adv-aviso { --fa: var(--s-fa); --fb: var(--s-fb); border: 0; box-shadow: inset 0 0 0 2px var(--primaria); }
+.adv-aviso.tom-ok { box-shadow: inset 0 0 0 2px #19b98a; }
+.adv-aviso.tom-ruim { box-shadow: inset 0 0 0 2px #e2456a; }
+.adv-aviso.tom-comando { box-shadow: inset 0 0 0 2px var(--amarelo); }
 .adv-aviso small { color: var(--suave); }
-.vitoria-fundo { background: rgba(10, 6, 30, 0.72); }
+.vitoria-fundo { background: rgba(8, 5, 24, 0.78); }
 .vitoria-tela h2 { color: var(--amarelo); }
-.adv-fimbarra { background: var(--bg); border-top: 3px solid var(--primaria); }
+.adv-fimbarra { background: var(--bg); border-top: 3px solid var(--b-fa); }
+.adv-lista-sala li { color: var(--texto); }
+.adv-lista-sala small { color: var(--suave); }
+.adv-erro { color: #ff8fab; }
+.adv-contagem { color: var(--suave); }
+.adv-contagem.urgente { color: #ff8fab; }
+.mascote-mini { flex: none; }
 
 /* roleta facetada */
 .pg-roleta svg { filter: drop-shadow(0 6px 0 rgba(0, 0, 0, 0.3)); }
-.pg-ponteiro { border-top-color: var(--amarelo); filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.4)); }
-@media (prefers-color-scheme: light) { .pg-ponteiro { border-top-color: #1d1540; } .pg-opcao { --fa: #ffffff; --fb: #ece6ff; } }
+.pg-ponteiro { border-top-color: var(--amarelo); filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.45)); }
 
-/* o mascote ficava para fora do painel e o recorte cortava: agora fica dentro, no canto */
-.adv-mascote { top: 6px; right: 8px; z-index: 1; }
-.adv-painel h2, .pg-painel h2 { padding-right: 76px; }
-.pg-centro h2 { padding-right: 0; }
-
-/* listas de texto corrido ganham uma base translúcida, para não brigar com os polígonos do fundo */
-.adv-historico, .adv-reveladas, .rodape, .pg-meta, .dicas {
-  background: color-mix(in srgb, var(--bg) 78%, transparent); padding-left: 8px; padding-right: 8px;
-}
-.adv-categoria, .pg-categoria-chip { border-radius: 0; clip-path: var(--recorte-s); }
+/* ===== ajustes do tema claro ===== */
 @media (prefers-color-scheme: light) {
-  .cartao-jogo.breve { --fa: #e1daff; --fb: #d4cbfa; opacity: 0.75; }
-  .adv-historico, .adv-reveladas, .rodape, .pg-meta, .dicas { background: color-mix(in srgb, var(--bg) 70%, transparent); }
-  .adv-numeros button, .pg-curinga:not(:disabled), .pg-opcao.certa, .pg-opcao.errada { color: #fff; }
-  .adv-numeros button:disabled, .pg-curinga { --fa: #d9d0fb; --fb: #cbc0f5; color: #5d5496; }
-  .pg-curinga:not(:disabled) { --fa: #6f58f0; --fb: #5139d4; color: #fff; }
-  .pg-trilha i, .pg-fichas i { background: #d4cbfa; }
-  .casa { background: #ffffff; }
-  .casa.na-palavra { background: #d9d0fb; }
-  .adv-casa { background: #ffffff; } .adv-casa.marco { background: #d9d0fb; }
-  .adv-aviso { --fa: #ffffff; --fb: #ece6ff; }
+  .adv-numeros button { --fa: #6c55f2; --fb: #4b33d4; }
+  .adv-casa { background: #ffffff; } .adv-casa.marco { background: #ddd4ff; }
+  .adv-num, .casa .num { color: #5f5895; }
+  .casa { background: #ffffff; color: #1b1440; }
+  .casa.na-palavra { background: #ddd4ff; }
+  .casa.certa { background: #14a174; color: #fff; }
+  .casa.certa .num { color: rgba(255, 255, 255, 0.85); }
+  .pg-trilha i.feita { background: #6c55f2; }
+  .pg-trilha i.coroa { background: #c9bff5; }
+  .adv-resposta { color: #4b33d4; }
+  .vitoria-tela h2 { color: #4b33d4; }
+  .pg-ponteiro { border-top-color: #1b1440; }
+  .adv-erro, .adv-contagem.urgente { color: #c02650; }
+  .cartao-jogo, .adv-placar li, .pg-placar li, .pg-opcao, .pg-curinga, .chip, .adv-stepper button { box-shadow: inset 0 -3px 0 rgba(27, 20, 64, 0.12), inset 0 0 0 1px rgba(27, 20, 64, 0.08); }
+}
+
+/* estados que o index.css pinta com seletores mais específicos: repetir o degradê para as facetas valerem */
+.cartao-jogo.destaque, .cartao-jogo.destaque.adivinhai, .cartao-jogo.destaque.perguntai, .cartao-jogo.breve,
+.adv-placar li.vez, .pg-placar li.vez, .chip.ativo, .pg-opcao.certa, .pg-opcao.errada, .pg-opcao.eliminada,
+.pg-opcao.neutra, .pg-curinga:not(:disabled), .pg-curinga:disabled, .adv-numeros button:disabled,
+.adv-stepper button:disabled, .primario:disabled {
+  background: linear-gradient(118deg, var(--fa) 0 58%, var(--fb) 58% 100%);
+}
+.cartao-jogo.destaque, .cartao-jogo.destaque.adivinhai, .cartao-jogo.destaque.perguntai { box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.25); }
+/* botão vazado precisa de fundo próprio: os cacos fixos do rodapé passavam por trás do texto */
+.secundario { background: var(--bg); }
+/* casas vazias da trilha e fichas que faltam: visíveis em qualquer linha do placar */
+.pg-trilha i:not(.feita):not(.coroa), .pg-fichas i:not(.tem),
+.pg-placar li.vez .pg-trilha i:not(.feita):not(.coroa), .pg-placar li.vez .pg-fichas i:not(.tem) { background: rgba(255, 255, 255, 0.18); }
+.pg-trilha i.coroa:not(.feita) { background: rgba(255, 210, 63, 0.35); }
+@media (prefers-color-scheme: light) {
+  .pg-trilha i:not(.feita):not(.coroa), .pg-fichas i:not(.tem) { background: rgba(27, 20, 64, 0.16); }
+  .pg-placar li.vez .pg-trilha i:not(.feita):not(.coroa), .pg-placar li.vez .pg-fichas i:not(.tem) { background: rgba(255, 255, 255, 0.35); }
+}
+@media (prefers-color-scheme: light) {
+  /* repetidos depois dos fundos claros para continuarem valendo */
+  .casa.foco { background: var(--amarelo); color: #1b1440; }
+  .casa.certa { background: #14a174; color: #fff; }
+  .adv-casa.meta { background: var(--amarelo); }
 }
