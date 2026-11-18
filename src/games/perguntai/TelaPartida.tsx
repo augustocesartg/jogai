@@ -188,6 +188,8 @@ interface Props {
   visao: Visao
   /** índice do jogador que está nesta tela */
   eu: number
+  /** instante (relógio local) em que o servidor joga sozinho; só no online */
+  fimEm?: number | null
   agir: (a: AcaoUI) => void
   /** botão do fim da partida; null = quem decide é outra pessoa (mostra `esperaNova`) */
   onNova: (() => void) | null
@@ -197,7 +199,7 @@ interface Props {
   extra?: ReactNode
 }
 
-export function TelaPartida({ visao: e, eu, agir, onNova, esperaNova, onSair, rotuloSair = '← Sair', extra }: Props) {
+export function TelaPartida({ visao: e, eu, fimEm, agir, onNova, esperaNova, onSair, rotuloSair = '← Sair', extra }: Props) {
   const [resumoFechado, setResumoFechado] = useState(false)
   const [avisos, setAvisos] = useState<Aviso[]>([])
   const [festa, setFesta] = useState(false)
@@ -241,6 +243,9 @@ export function TelaPartida({ visao: e, eu, agir, onNova, esperaNova, onSair, ro
   const desafios = e.fase === 'categoria' && minhaVez ? desafiosPossiveis(e, e.vez) : []
   const res = e.fase === 'resultado' || e.fase === 'fim' ? textoResultado(e, eu) : null
   const venci = e.vencedor === eu
+  // só mostra a contagem quando o servidor espera uma pessoa (a vez de um bot dura segundos)
+  const esperando = e.fase === 'duelo' && e.duelo ? [e.duelo.desafiante, e.duelo.alvo].filter((i) => !e.duelo!.respondeu.includes(i)) : [e.vez]
+  const esperaHumano = e.vencedor === null && e.fase !== 'fim' && (e.fase === 'resultado' || esperando.some((i) => !e.jogadores[i].bot))
 
   return (
     <main className="jogo pg-jogo">
@@ -283,6 +288,8 @@ export function TelaPartida({ visao: e, eu, agir, onNova, esperaNova, onSair, ro
           </div>
         ))}
       </div>
+
+      {fimEm != null && esperaHumano && <Contagem key={fimEm} fimEm={fimEm} fase={e.fase} />}
 
       <section className="pg-painel" aria-live="polite">
         <Mascote className="adv-mascote" pose={festa ? 'comemorando' : 'detetive'} tamanho={60} />
@@ -457,5 +464,19 @@ export function TelaPartida({ visao: e, eu, agir, onNova, esperaNova, onSair, ro
       )}
       {extra}
     </main>
+  )
+}
+
+function Contagem({ fimEm, fase }: { fimEm: number; fase: string }) {
+  const [agora, setAgora] = useState(() => Date.now())
+  useEffect(() => {
+    const t = setInterval(() => setAgora(Date.now()), 500)
+    return () => clearInterval(t)
+  }, [])
+  const s = Math.max(0, Math.ceil((fimEm - agora) / 1000))
+  return (
+    <p className={'adv-contagem' + (s <= 8 ? ' urgente' : '')} role="timer">
+      {fase === 'resultado' ? `Continua sozinho em ${s}s` : `⏳ ${s}s`}
+    </p>
   )
 }

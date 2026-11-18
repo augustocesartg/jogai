@@ -12,6 +12,8 @@ export interface Agenda {
   jogador: number | null
   /** bot joga logo; humano tem tempo limite; proxima avança sozinha depois de uma pausa */
   tipo: 'bot' | 'humano' | 'proxima'
+  /** espera em ms até a jogada automática; se omitido, vale o padrão da sala para esse tipo */
+  ms?: number
 }
 
 export interface JogoServidor<E> {

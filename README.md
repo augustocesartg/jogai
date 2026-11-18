@@ -129,9 +129,11 @@ O repositório está conectado ao Cloudflare: um push na branch `main` dispara o
 - Para regenerar os ícones PNG: `python3 design/gerar-icones.py public`.
 
 ## Perguntaí
-Segundo jogo, adaptação própria das regras de um jogo de tabuleiro de perguntas (nome, perguntas e visual próprios). Já dá para jogar sozinho contra 1 a 5 bots, offline. O modo online ainda não existe (próxima etapa).
+Segundo jogo, adaptação própria das regras de um jogo de tabuleiro de perguntas (nome, perguntas e visual próprios). Dá para jogar sozinho contra 1 a 5 bots (offline) ou online com amigos, em salas por link com bots completando a sala.
 
 Telas (`src/games/perguntai/`): configuração (nome, bots, dificuldade e duração: curta com 3 fichas, média com 4 ou completa com 6), roleta animada, carta de pergunta com 4 alternativas, placar com trilha e fichas de cada jogador, curingas, escolha de categoria na Coroa, desafio de duelo e tela de fim de partida. A `TelaPartida` só mostra a `Visao` e envia ações, para ser reaproveitada no online. Os bots esperam a roleta parar e "pensam" um pouco antes de agir (mais no duelo, para dar tempo de responder). As perguntas vistas ficam em `jogai:perguntai:perguntas`, e a configuração em `jogai:perguntai:config`. No solo não há tempo limite por pergunta.
+
+**Online:** o `servidor.ts` põe as regras do `motor.ts` no contrato da sala (`JogoServidor`). A sala valida quem pode agir (nunca confia no jogador informado pelo cliente) e recusa ação que não muda nada, para não reiniciar o relógio. Tempos: 15 s para girar, 20 s para escolher a categoria e para responder (inclusive no duelo), 8 s no resultado e bots em 1 a 3,5 s (esperam a roleta). Tempo esgotado: gira, escolhe uma categoria livre ou conta como erro. O duelo é simultâneo: o primeiro a acertar leva a ficha, na ordem em que o servidor recebe as respostas. A `Visao` esconde a alternativa certa até o resultado e a resposta do outro duelista até o fim do duelo; o id da pergunta só vai junto com o resultado, e o aparelho o grava na memória de perguntas vistas.
 
 Motor, visão e bots ficam em `motor.ts`, `visao.ts` e `bots.ts`, e o banco de 360 perguntas em `perguntas/`.
 

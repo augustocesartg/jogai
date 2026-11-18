@@ -139,9 +139,10 @@ export class Sala extends DurableObject<Env> {
       return
     }
     let espera: number
-    if (agenda.tipo === 'proxima') espera = TEMPO_PROXIMA_MS
-    else if (agenda.tipo === 'bot') espera = 1000 + Math.random() * 700
-    else espera = agenda.jogador !== null && on.has(p.slots[agenda.jogador]) ? TEMPO_VEZ_MS : TEMPO_OFFLINE_MS
+    if (agenda.tipo === 'proxima') espera = agenda.ms ?? TEMPO_PROXIMA_MS
+    else if (agenda.tipo === 'bot') espera = agenda.ms ?? 1000 + Math.random() * 700
+    else if (agenda.jogador !== null && !on.has(p.slots[agenda.jogador])) espera = TEMPO_OFFLINE_MS
+    else espera = agenda.ms ?? TEMPO_VEZ_MS
     p.prazo = Date.now() + espera
   }
 
@@ -334,7 +335,7 @@ export class Sala extends DurableObject<Env> {
       const agenda = jogo.agenda(p.estado)
       if (agenda) {
         const acao = jogo.automatico(p.estado, agenda, rng)
-        const feito = await this.jogar(d, acao, -1)
+        const feito = await this.jogar(d, acao, agenda.jogador ?? -1)
         // ação recusada: tenta de novo mais tarde em vez de travar o alarme
         if (!feito) this.definirPrazo(d)
       } else p.prazo = null

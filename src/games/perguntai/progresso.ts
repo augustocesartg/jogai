@@ -47,6 +47,12 @@ export function lerPerguntasVistas(): string[] {
   }
 }
 
+/** Marca uma pergunta como vista (a mais recente vai para o fim da lista). */
+export function marcarPerguntaVista(id: string) {
+  const lista = lerPerguntasVistas().filter((x) => x !== id)
+  gravarPerguntasVistas([...lista, id])
+}
+
 export function gravarPerguntasVistas(ids: string[]) {
   try {
     localStorage.setItem(K_PERGUNTAS, JSON.stringify(ids.slice(-400)))

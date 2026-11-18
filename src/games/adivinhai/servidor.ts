@@ -44,7 +44,9 @@ export const adivinhaiServidor: JogoServidor<Estado> = {
     if (!a) return null
     // jogar só na própria vez; avançar a rodada vale para qualquer um
     if (eu >= 0 && a.tipo !== 'proxima' && e.rodada.vez !== eu) return null
-    return aplicar(e, a, CARTAS, rng)
+    const depois = aplicar(e, a, CARTAS, rng)
+    // ação inválida não muda nada e não pode reiniciar o relógio da sala
+    return JSON.stringify(depois) === JSON.stringify(e) ? null : depois
   },
 
   visao: (e) => visaoDe(e),
