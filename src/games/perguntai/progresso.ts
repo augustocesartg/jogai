@@ -55,7 +55,7 @@ export function marcarPerguntaVista(id: string) {
 
 export function gravarPerguntasVistas(ids: string[]) {
   try {
-    localStorage.setItem(K_PERGUNTAS, JSON.stringify(ids.slice(-400)))
+    localStorage.setItem(K_PERGUNTAS, JSON.stringify(ids.slice(-700)))
   } catch {
     /* sem armazenamento: segue sem persistir */
   }

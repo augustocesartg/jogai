@@ -5,9 +5,9 @@ import { PERGUNTAS } from './index'
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 
 describe('banco de perguntas do Perguntaí', () => {
-  it('tem 60 perguntas por categoria', () => {
+  it('tem 100 perguntas por categoria', () => {
     for (const c of CATEGORIAS) {
-      expect(PERGUNTAS.filter((p) => p.categoria === c.id), c.id).toHaveLength(60)
+      expect(PERGUNTAS.filter((p) => p.categoria === c.id), c.id).toHaveLength(100)
     }
   })
 

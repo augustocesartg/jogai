@@ -4,7 +4,7 @@ Site de jogos para o navegador, pensado para o celular. Jogos:
 
 - **Palavras Cruzadas**: palavras de história, artes, ciência e geografia.
 - **Adivinhaí**: 20 pistas, 1 resposta. Jogo de cartas e tabuleiro, solo contra bots (funciona offline) ou online com amigos.
-- **Perguntaí**: roleta de categorias, perguntas de múltipla escolha, curingas e duelos. Solo contra bots, offline.
+- **Perguntaí**: roleta de categorias, perguntas de múltipla escolha, curingas e duelos. Solo contra bots (offline) ou online com amigos.
 
 **Online:** https://jogai.augustocesartg.workers.dev
 
@@ -70,6 +70,12 @@ src/
     cartas/                       cartas por categoria (pessoa.ts, lugar.ts, ...)
     Partida.tsx, Tabuleiro.tsx    telas do jogo
     simulacao.test.ts             simulação de equilíbrio com bots (opcional)
+  games/perguntai/
+    motor.ts, visao.ts, bots.ts    regras puras, o que o jogador vê e decisões dos bots
+    servidor.ts                   o jogo no contrato da sala online
+    perguntas/                    banco de perguntas por categoria (+ testes de qualidade)
+    Roleta.tsx, TelaPartida.tsx   roleta e tela da partida (solo e online)
+    Partida.tsx, Configuracao.tsx solo contra bots
   games/palavras-cruzadas/
     PalavrasCruzadas.tsx          configuração de matérias e início da partida
     Jogo.tsx                      tabuleiro, digitação, dicas e tela de vitória
@@ -135,7 +141,7 @@ Telas (`src/games/perguntai/`): configuração (nome, bots, dificuldade e duraç
 
 **Online:** o `servidor.ts` põe as regras do `motor.ts` no contrato da sala (`JogoServidor`). A sala valida quem pode agir (nunca confia no jogador informado pelo cliente) e recusa ação que não muda nada, para não reiniciar o relógio. Tempos: 15 s para girar, 20 s para escolher a categoria e para responder (inclusive no duelo), 8 s no resultado e bots em 1 a 3,5 s (esperam a roleta). Tempo esgotado: gira, escolhe uma categoria livre ou conta como erro. O duelo é simultâneo: o primeiro a acertar leva a ficha, na ordem em que o servidor recebe as respostas. A `Visao` esconde a alternativa certa até o resultado e a resposta do outro duelista até o fim do duelo; o id da pergunta só vai junto com o resultado, e o aparelho o grava na memória de perguntas vistas.
 
-Motor, visão e bots ficam em `motor.ts`, `visao.ts` e `bots.ts`, e o banco de 360 perguntas em `perguntas/`.
+Motor, visão e bots ficam em `motor.ts`, `visao.ts` e `bots.ts`, e o banco de 600 perguntas em `perguntas/`.
 
 Regras implementadas:
 - Roleta com 6 categorias (Ciências, Arte, Esportes, Entretenimento, Geografia e História) e a Coroa. Cada jogador tem uma trilha de 4 casas: 3 de avanço e a Coroa.
@@ -145,7 +151,7 @@ Regras implementadas:
 - Duelo (3 ou mais jogadores): na Coroa, desafia alguém que tenha uma ficha que ele não tem, apostando uma ficha sua que o outro não tem. Os dois respondem à mesma pergunta e quem acertar primeiro leva a ficha; se os dois errarem, nada muda. Em qualquer caso a trilha do desafiante volta a zero.
 - Vence quem reunir as 6 fichas (configurável: `fichasParaVencer`, útil para partidas curtas).
 
-Banco de perguntas: 60 por categoria, em `src/games/perguntai/perguntas/` (um arquivo por categoria, no formato `q(nivel, 'pergunta', 'certa', 'errada 1', 'errada 2', 'errada 3')`, nível 1 = fácil, 2 = média, 3 = difícil). As alternativas são embaralhadas a cada sorteio. O id é um hash do texto: ao editar o texto de uma pergunta, ela passa a contar como nova. Os testes garantem 60 por categoria, 4 alternativas diferentes, texto terminado em `?` sem a resposta dentro, alternativas curtas e uma mistura de níveis. As perguntas evitam fatos que mudam com o tempo.
+Banco de perguntas: 100 por categoria, em `src/games/perguntai/perguntas/` (dois arquivos por categoria, `x.ts` e `x2.ts`, no formato `q(nivel, 'pergunta', 'certa', 'errada 1', 'errada 2', 'errada 3')`, nível 1 = fácil, 2 = média, 3 = difícil). As alternativas são embaralhadas a cada sorteio. O id é um hash do texto: ao editar o texto de uma pergunta, ela passa a contar como nova. Os testes garantem 100 por categoria, 4 alternativas diferentes, texto terminado em `?` sem a resposta dentro, alternativas curtas e uma mistura de níveis. As perguntas evitam fatos que mudam com o tempo.
 
 Para medir duração e equilíbrio com bots (4 jogadores e 6 fichas: cerca de 65 perguntas por partida):
 ```bash
@@ -165,4 +171,4 @@ Salas por link, para 2 a 6 jogadores (humanos e bots). Criar sala gera um códig
 - **Armazenamento:** salas ficam em Durable Objects (SQLite, plano gratuito) e somem após 6 h sem ninguém conectado.
 
 ## Ideias futuras
-Mais cartas, teclado virtual nas palavras cruzadas, salvar partida em andamento, botão de compartilhar o resultado e novos jogos (caça-palavras e forca já têm cartão "Em breve" na home).
+Mais cartas e perguntas (o Perguntaí chega a 150 por categoria), uma identidade visual própria para o Perguntaí (arcade/16 bits foi testada em mockups), teclado virtual nas palavras cruzadas, salvar partida em andamento, botão de compartilhar o resultado e novos jogos (caça-palavras e forca já têm cartão "Em breve" na home).

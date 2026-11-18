@@ -450,7 +450,7 @@ export function TelaPartida({ visao: e, eu, fimEm, agir, onNova, esperaNova, onS
                 ))}
             </ul>
             {onNova ? <button className="primario" onClick={onNova}>Jogar de novo</button> : <p className="adv-espera">{esperaNova}</p>}
-            <button className="secundario" onClick={() => setResumoFechado(true)}>Ver tabuleiro</button>
+            <button className="secundario" onClick={() => setResumoFechado(true)}>Ver placar</button>
             <button className="voltar" onClick={onSair}>Sair</button>
           </div>
         </div>
