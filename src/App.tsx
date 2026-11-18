@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState } from 'react'
+import { FundoPoly } from './components/FundoPoly'
 import { Mascote } from './components/Mascote'
 import { lerStats } from './games/palavras-cruzadas/progresso'
 import { lerConfig } from './games/adivinhai/progresso'
@@ -29,7 +30,12 @@ export default function App() {
   else if (jogo === 'perguntai') tela = <Perguntai onSair={() => setJogo(null)} />
   else tela = <Home onJogar={setJogo} />
 
-  return <Suspense fallback={<p className="carregando">Carregando…</p>}>{tela}</Suspense>
+  return (
+    <>
+      <FundoPoly />
+      <Suspense fallback={<p className="carregando">Carregando…</p>}>{tela}</Suspense>
+    </>
+  )
 }
 
 function Home({ onJogar }: { onJogar: (id: string) => void }) {

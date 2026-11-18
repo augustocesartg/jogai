@@ -1,0 +1,176 @@
+/* ===== estilo low poly (teste) =====
+   Facetas em duas tonalidades, cantos cortados e sombras duras. Carregado depois de index.css. */
+
+:root {
+  --bg: #130c2e;
+  --card: #241b56;
+  --texto: #f4f1ff;
+  --suave: #b3abe3;
+  --primaria: #a597ff;
+  --foco: #6b4fd6;
+  --palavra: #3b2f86;
+  --certa: #0f7a56;
+  --borda: #4a3d99;
+  --grade: transparent;
+  --amarelo: #ffd23f;
+
+  /* facetas: tom claro à esquerda, escuro à direita */
+  --fa: #2f2573;
+  --fb: #231a58;
+  --c: 12px;
+  --recorte: polygon(var(--c) 0, 100% 0, 100% calc(100% - var(--c)), calc(100% - var(--c)) 100%, 0 100%, 0 var(--c));
+  --cs: 7px;
+  --recorte-s: polygon(var(--cs) 0, 100% 0, 100% calc(100% - var(--cs)), calc(100% - var(--cs)) 100%, 0 100%, 0 var(--cs));
+  --recorte-x: polygon(var(--cs) 0, calc(100% - var(--cs)) 0, 100% var(--cs), 100% calc(100% - var(--cs)), calc(100% - var(--cs)) 100%, var(--cs) 100%, 0 calc(100% - var(--cs)), 0 var(--cs));
+  --p-rosa: #e63e93; --p-rosa-2: #b72570;
+  --p-verde: #14b383; --p-verde-2: #0d8a65;
+  --p-laranja: #ff8a2b; --p-laranja-2: #d96a14;
+  --p-violeta: #6b4fd6;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #ece7ff;
+    --card: #ffffff;
+    --texto: #1d1540;
+    --suave: #5d5496;
+    --primaria: #5a43dc;
+    --foco: #ffd23f;
+    --palavra: #ddd4ff;
+    --certa: #b6f0d6;
+    --borda: #c9bff5;
+    --fa: #ffffff;
+    --fb: #ece6ff;
+    --p-rosa: #ff7ab8; --p-rosa-2: #f04f9c;
+    --p-verde: #4fd9ae; --p-verde-2: #22b98b;
+    --p-laranja: #ffae5e; --p-laranja-2: #ff8f33;
+    --p-violeta: #a597ff;
+  }
+}
+
+body { background: var(--bg); background-image: none; }
+h1, h2, h3 { font-weight: 800; letter-spacing: -0.01em; }
+
+.fundo-poly { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+.p-rosa { fill: var(--p-rosa); } .p-rosa-2 { fill: var(--p-rosa-2); }
+.p-verde { fill: var(--p-verde); } .p-verde-2 { fill: var(--p-verde-2); }
+.p-laranja { fill: var(--p-laranja); } .p-laranja-2 { fill: var(--p-laranja-2); }
+.p-violeta { fill: var(--p-violeta); }
+
+/* ===== superfícies facetadas ===== */
+.cartao-jogo, .adv-painel, .pg-painel, .stat, .adv-placar li, .pg-placar li, .dica-ativa, .acoes button,
+.adv-stepper button, .adv-config input, .adv-form input, .pg-opcao, .pg-curinga, .pg-cat, .chip,
+.adv-numeros button, .adv-aviso, .vitoria-tela, .resumo div, .secundario, .primario, .adv-som {
+  border: 0; border-radius: 0; background: linear-gradient(118deg, var(--fa) 0 58%, var(--fb) 58% 100%); box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.22);
+}
+.cartao-jogo, .adv-painel, .pg-painel, .adv-aviso { clip-path: var(--recorte); }
+.vitoria-tela { clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px); }
+.stat, .adv-placar li, .pg-placar li, .dica-ativa, .acoes button, .adv-stepper button, .adv-config input,
+.adv-form input, .pg-opcao, .pg-curinga, .pg-cat, .chip, .adv-numeros button, .resumo div, .secundario, .primario {
+  clip-path: var(--recorte-s);
+}
+.adv-som { clip-path: var(--recorte-x); }
+
+/* foco visível dentro da forma (contorno comum seria cortado) */
+button:focus-visible, input:focus-visible { outline: none; box-shadow: inset 0 0 0 3px var(--amarelo); }
+
+/* botões principais */
+.primario {
+  --fa: #8a76ff; --fb: #5d44e0; color: #fff; font-weight: 800; letter-spacing: 0.02em; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.primario:active, .cartao-jogo.destaque:active { transform: translateY(2px); }
+.primario:disabled { --fa: #4a3d99; --fb: #3b2f86; color: #b3abe3; }
+.secundario { --fa: transparent; --fb: transparent; background: none; color: var(--primaria); box-shadow: inset 0 0 0 2px var(--primaria); }
+.secundario:focus-visible { box-shadow: inset 0 0 0 3px var(--amarelo); }
+.chip.ativo { --fa: #8a76ff; --fb: #5d44e0; color: #fff; font-weight: 800; }
+.adv-stepper button:disabled { opacity: 0.45; }
+
+/* cartões da home: uma cor de faceta por jogo */
+.cartao-jogo.destaque { --fa: #8a76ff; --fb: #5d44e0; background: linear-gradient(118deg, var(--fa) 0 58%, var(--fb) 58% 100%); transition: transform 0.1s; }
+.cartao-jogo.destaque.adivinhai { --fa: #1dc596; --fb: #0c8a68; }
+.cartao-jogo.destaque.perguntai { --fa: #f2509b; --fb: #b72570; }
+.cartao-jogo.destaque small { color: rgba(255, 255, 255, 0.85); }
+.cartao-jogo .jogar { border-radius: 0; background: var(--amarelo); clip-path: var(--recorte-s); }
+.cartao-jogo.breve { --fa: #2a2160; --fb: #221a50; opacity: 0.55; box-shadow: none; }
+.stat { box-shadow: none; }
+
+/* placar */
+.adv-placar li.vez, .pg-placar li.vez { --fa: #8a76ff; --fb: #5d44e0; color: #fff; }
+.adv-placar li, .pg-placar li { box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.22); }
+
+/* painéis e cartas de pergunta */
+.adv-painel, .pg-painel { box-shadow: none; padding: 16px; }
+.pg-carta { border-left: 0; padding-left: 0; }
+.pg-carta::before { content: ''; display: block; height: 6px; margin-bottom: 8px; background: var(--cor); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+.pg-opcao { --fa: #34297a; --fb: #281f62; }
+.pg-opcao b { border-radius: 0; clip-path: var(--recorte-x); background: var(--primaria); color: #1d1540; }
+.pg-opcao.certa { --fa: #17a574; --fb: #0f7a56; color: #fff; }
+.pg-opcao.errada { --fa: #c9345a; --fb: #8f2342; color: #fff; text-decoration: line-through; opacity: 0.9; }
+.pg-opcao.eliminada, .pg-opcao.neutra { opacity: 0.35; }
+.pg-cat {
+  background: linear-gradient(118deg, var(--cor) 0 58%, color-mix(in srgb, var(--cor) 68%, black) 58% 100%);
+  color: #fff; font-weight: 800; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+}
+.pg-cat small { color: rgba(255, 255, 255, 0.85); }
+.pg-curinga { --fa: #3b2f86; --fb: #2c2266; }
+.pg-curinga:not(:disabled) { --fa: #5d44e0; --fb: #4632b8; color: #fff; }
+.pg-curinga small { color: rgba(255, 255, 255, 0.7); }
+.pg-categoria { text-transform: uppercase; letter-spacing: 0.05em; }
+.pg-trilha i { border: 0; border-radius: 0; background: #1a1240; clip-path: var(--recorte-x); --cs: 4px; }
+.pg-trilha i.feita { background: #8a76ff; }
+.pg-trilha i.coroa { background: #3b2f86; }
+.pg-trilha i.coroa.feita { background: var(--amarelo); }
+.pg-fichas i { border: 0; border-radius: 0; background: #1a1240; clip-path: polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0 50%); }
+.pg-fichas i.tem { border: 0; }
+
+/* Adivinhaí: números, tabuleiro, peões */
+.adv-numeros button { --fa: #4632b8; --fb: #36278f; color: #fff; }
+.adv-numeros button:disabled { --fa: #241b56; --fb: #1c1445; color: #8178c4; }
+.adv-casa { border: 0; border-radius: 0; background: #2a2062; clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px)); }
+.adv-casa.marco { background: #4a3a9e; }
+.adv-casa.meta { background: var(--amarelo); }
+.adv-num { color: #b3abe3; }
+.adv-peao { border: 0; border-radius: 0; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); box-shadow: none; }
+.adv-ponto { border-radius: 0; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+
+/* Palavras cruzadas */
+.casa { border: 0; border-radius: 0; background: #2a2062; clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px)); }
+.casa.na-palavra { background: #4a3a9e; }
+.casa.foco { background: #7a5cff; color: #fff; }
+.casa.certa { background: #14a174; color: #fff; }
+.casa .num { color: #cfc8f5; }
+.dicas li button { border-bottom-color: var(--borda); }
+
+/* avisos e fim de partida */
+.adv-aviso { --fa: #2f2573; --fb: #241b56; border: 0; box-shadow: none; }
+.adv-aviso small { color: var(--suave); }
+.vitoria-fundo { background: rgba(10, 6, 30, 0.72); }
+.vitoria-tela h2 { color: var(--amarelo); }
+.adv-fimbarra { background: var(--bg); border-top: 3px solid var(--primaria); }
+
+/* roleta facetada */
+.pg-roleta svg { filter: drop-shadow(0 6px 0 rgba(0, 0, 0, 0.3)); }
+.pg-ponteiro { border-top-color: var(--amarelo); filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.4)); }
+@media (prefers-color-scheme: light) { .pg-ponteiro { border-top-color: #1d1540; } .pg-opcao { --fa: #ffffff; --fb: #ece6ff; } }
+
+/* o mascote ficava para fora do painel e o recorte cortava: agora fica dentro, no canto */
+.adv-mascote { top: 6px; right: 8px; z-index: 1; }
+.adv-painel h2, .pg-painel h2 { padding-right: 76px; }
+.pg-centro h2 { padding-right: 0; }
+
+/* listas de texto corrido ganham uma base translúcida, para não brigar com os polígonos do fundo */
+.adv-historico, .adv-reveladas, .rodape, .pg-meta, .dicas {
+  background: color-mix(in srgb, var(--bg) 78%, transparent); padding-left: 8px; padding-right: 8px;
+}
+.adv-categoria, .pg-categoria-chip { border-radius: 0; clip-path: var(--recorte-s); }
+@media (prefers-color-scheme: light) {
+  .cartao-jogo.breve { --fa: #e1daff; --fb: #d4cbfa; opacity: 0.75; }
+  .adv-historico, .adv-reveladas, .rodape, .pg-meta, .dicas { background: color-mix(in srgb, var(--bg) 70%, transparent); }
+  .adv-numeros button, .pg-curinga:not(:disabled), .pg-opcao.certa, .pg-opcao.errada { color: #fff; }
+  .adv-numeros button:disabled, .pg-curinga { --fa: #d9d0fb; --fb: #cbc0f5; color: #5d5496; }
+  .pg-curinga:not(:disabled) { --fa: #6f58f0; --fb: #5139d4; color: #fff; }
+  .pg-trilha i, .pg-fichas i { background: #d4cbfa; }
+  .casa { background: #ffffff; }
+  .casa.na-palavra { background: #d9d0fb; }
+  .adv-casa { background: #ffffff; } .adv-casa.marco { background: #d9d0fb; }
+  .adv-aviso { --fa: #ffffff; --fb: #ece6ff; }
+}
