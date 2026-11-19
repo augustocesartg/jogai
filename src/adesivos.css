@@ -224,5 +224,6 @@ button:focus-visible { outline: 3px solid var(--primaria); outline-offset: 2px; 
 .casa .letra { font-family: var(--fonte-titulo); font-weight: 600; }
 
 /* home: o título "Jogaí" respira abaixo do balão do mascote */
+.topo > div { display: flex; flex-direction: column; align-items: flex-start; }
 .topo .balao { margin-bottom: 22px; }
 .topo .logo { margin-top: 2px; line-height: 1.1; }
