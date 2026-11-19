@@ -1,3 +1,4 @@
+import { extrairVagas, limpar, mascaraTrelica, numerar as numerarDenso, preencher, silhueta } from './denso'
 import type { Colocada, Direcao, Palavra, Tabuleiro } from './types'
 
 export type Rng = () => number
@@ -177,4 +178,44 @@ export function gerarTabuleiro(
     if (melhor.length >= alvo) break
   }
   return { tamanho, palavras: numerar(melhor) }
+}
+
+export interface OpcoesDenso {
+  tamanho?: number
+  tentativas?: number
+  rng?: Rng
+}
+
+/**
+ * Grade densa, no estilo das cruzadinhas de jornal: blocos pretos, quase todas as células brancas cruzam duas palavras.
+ * Sorteia uma máscara (retangular ou redonda), preenche todas as vagas com palavras do banco (todas com dica de verdade)
+ * e, se o banco escolhido for pequeno demais para fechar uma grade densa, cai para a grade esparsa de sempre.
+ */
+export function gerarTabuleiroDenso(
+  pool: Palavra[],
+  vistas: Set<string>,
+  { tamanho = 11, tentativas = 300, rng = Math.random }: OpcoesDenso = {},
+): Tabuleiro {
+  let melhor: { palavras: Colocada[]; densidade: number } | null = null
+  const ordenado = ordenarPool(pool, vistas, rng)
+  for (let t = 0; t < tentativas; t++) {
+    const redonda = rng() < 0.3
+    const periodo = rng() < 0.7 ? 2 : 3
+    const mascara = limpar(silhueta(mascaraTrelica(tamanho, periodo, rng), redonda ? 'redonda' : 'retangular'))
+    const vagas = extrairVagas(mascara)
+    const brancas = mascara.flat().filter(Boolean).length
+    const densidade = brancas / (tamanho * tamanho)
+    const minimo = redonda ? 0.42 : 0.5
+    if (vagas.length < 10 || densidade < minimo) continue
+    if (melhor && densidade <= melhor.densidade) continue
+    // a cada tentativa, outra ordem dentro das palavras já vistas e das inéditas
+    const palavras = t % 5 === 0 ? ordenarPool(pool, vistas, rng) : ordenado
+    const preenchidas = preencher(vagas, palavras, rng, 3000)
+    if (!preenchidas) continue
+    const colocadas: Colocada[] = vagas.map((v, i) => ({ palavra: preenchidas[i], linha: v.linha, coluna: v.coluna, direcao: v.direcao, numero: 0 }))
+    melhor = { palavras: colocadas, densidade }
+    if (densidade >= 0.6) break
+  }
+  if (melhor) return { tamanho, palavras: numerarDenso(melhor.palavras) }
+  return gerarTabuleiro(pool, vistas, { tamanho, alvo: 10, rng })
 }

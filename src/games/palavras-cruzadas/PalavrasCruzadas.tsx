@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Mascote } from '../../components/Mascote'
 import { BANCO } from './banco'
 import { Jogo } from './Jogo'
-import { gerarTabuleiro } from './gerador'
+import { gerarTabuleiroDenso } from './gerador'
 import { gravarMaterias, gravarVistas, lerMaterias, lerVistas } from './progresso'
 import { MATERIAS, type Materia, type Tabuleiro } from './types'
 
@@ -29,12 +29,12 @@ export function PalavrasCruzadas({ onSair }: { onSair: () => void }) {
     const pool = materias.flatMap((m) => BANCO[m])
     let vistas = lerVistas()
     const naoVistas = pool.filter((p) => !vistas.has(p.id))
-    if (naoVistas.length < 40) {
+    if (naoVistas.length < 60) {
       // ciclo reinicia para estas matérias
       const ids = new Set(pool.map((p) => p.id))
       vistas = new Set([...vistas].filter((id) => !ids.has(id)))
     }
-    const t = gerarTabuleiro(pool, vistas, { tamanho: 11, alvo: 10 })
+    const t = gerarTabuleiroDenso(pool, vistas, { tamanho: 11 })
     t.palavras.forEach((c) => vistas.add(c.palavra.id))
     gravarVistas(vistas)
     setTabuleiro(t)

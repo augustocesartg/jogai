@@ -59,16 +59,6 @@ function Home({ onJogar }: { onJogar: (id: string) => void }) {
       <h2 className="secao">Jogos</h2>
       <ul className="lista-jogos">
         <li>
-          <button className="cartao-jogo destaque" onClick={() => onJogar('cruzadas')}>
-            <span className="emoji">🧩</span>
-            <span className="textos">
-              <strong>Palavras Cruzadas</strong>
-              <small>História, artes, ciência e geografia</small>
-            </span>
-            <span className="jogar">Jogar ▶</span>
-          </button>
-        </li>
-        <li>
           <button className="cartao-jogo destaque adivinhai" onClick={() => onJogar('adivinhai')}>
             <span className="emoji">🕵️</span>
             <span className="textos">
@@ -84,6 +74,16 @@ function Home({ onJogar }: { onJogar: (id: string) => void }) {
             <span className="textos">
               <strong>Perguntaí</strong>
               <small>Gire a roleta, responda e junte as fichas</small>
+            </span>
+            <span className="jogar">Jogar ▶</span>
+          </button>
+        </li>
+        <li>
+          <button className="cartao-jogo destaque" onClick={() => onJogar('cruzadas')}>
+            <span className="emoji">🧩</span>
+            <span className="textos">
+              <strong>Palavras Cruzadas</strong>
+              <small>História, artes, ciência e geografia</small>
             </span>
             <span className="jogar">Jogar ▶</span>
           </button>

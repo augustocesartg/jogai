@@ -12,7 +12,7 @@ Funciona como app instalável (PWA) e abre offline depois da primeira visita.
 
 ## Recursos
 **Palavras Cruzadas**
-- Tabuleiro gerado a cada partida (grade 11×11, cerca de 10 palavras), sorteando das matérias escolhidas.
+- Tabuleiro denso no modelo das cruzadinhas de jornal, gerado a cada partida (grade 11×11 com blocos pretos, de 10 a 20 palavras, todas com dica de verdade), sorteando das matérias escolhidas. A palavra ativa fica em azul e a célula atual em amarelo.
 - Banco com 1.200 palavras (300 por matéria), cada uma com dica. Palavras já vistas só voltam quando as inéditas acabam.
 - Matérias configuráveis (todas por padrão); a escolha fica salva no navegador.
 - Palavra certa fica verde e trava; botão para revelar letra.
@@ -79,7 +79,8 @@ src/
   games/palavras-cruzadas/
     PalavrasCruzadas.tsx          configuração de matérias e início da partida
     Jogo.tsx                      tabuleiro, digitação, dicas e tela de vitória
-    gerador.ts                    gera a grade e escolhe as palavras
+    gerador.ts                    gera a grade (densa; cai para a esparsa se o banco for pequeno) e escolhe as palavras
+    denso.ts                      máscaras (treliça, retangular ou redonda) e preenchimento por busca com retrocesso
     banco.ts, data/               banco de palavras
     progresso.ts                  preferências, histórico e estatísticas (localStorage)
     gerador.test.ts               testes do gerador e do banco
@@ -91,6 +92,8 @@ design/                           fontes do ícone e script que gera os PNGs
 
 ## Banco de palavras
 Fica em `src/games/palavras-cruzadas/data/`, com três arquivos por matéria (por exemplo `historia.ts`, `historia2.ts` e `historia3.ts`), no formato `['Resposta', 'dica']`.
+
+O gerador denso (`denso.ts`) sorteia uma máscara de blocos pretos sem áreas brancas de 2x2, extrai as vagas de 3 ou mais letras e as preenche com palavras do banco por busca com retrocesso, preferindo as inéditas. Os testes conferem que toda sequência de 2 ou mais letras é exatamente uma palavra colocada. Medições: `VITE_SIMULAR=1 npx vitest run src/games/palavras-cruzadas/densidade.test.ts`.
 
 Regras, validadas por testes:
 - de 3 a 12 letras (espaços, hífens e acentos não contam);
