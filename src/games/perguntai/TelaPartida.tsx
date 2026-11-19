@@ -109,6 +109,24 @@ function textoResultado(e: Visao, eu: number): { icone: string; texto: string; t
   return { icone: '⚔️', texto: `${quem(r.vencedor)} venceu o duelo e levou a ficha de ${cat(ficha).nome} de ${quem(perdedor)}.`, tom: 'ok' }
 }
 
+/** Frase do mascote depois de uma jogada sua (null = não é com você). */
+function reacaoDe(e: Visao, eu: number): { texto: string; alegre: boolean } | null {
+  const r = e.resultado
+  const p = e.pergunta
+  if (!r || !p || eu < 0) return null
+  if (r.tipo === 'ficha' && r.jogador === eu) return { texto: 'Ficha na mão!', alegre: true }
+  if (r.tipo === 'acerto' && r.jogador === eu) return { texto: 'Isso aí!', alegre: true }
+  if (r.tipo === 'erro' && r.jogador === eu) {
+    const certa = p.correta === null ? '' : ` Era a ${['A', 'B', 'C', 'D'][p.correta]}.`
+    return { texto: r.semResposta ? `Tempo!${certa}` : `Quase!${certa}`, alegre: false }
+  }
+  if (r.tipo === 'duelo' && (r.desafiante === eu || r.alvo === eu)) {
+    if (r.vencedor === eu) return { texto: 'Duelo ganho!', alegre: true }
+    return r.vencedor === null ? { texto: 'Empate no duelo!', alegre: false } : { texto: 'Essa doeu…', alegre: false }
+  }
+  return null
+}
+
 function Fichas({ fichas }: { fichas: Categoria[] }) {
   return (
     <span className="pg-fichas" aria-label={`${fichas.length} fichas`}>
@@ -243,6 +261,7 @@ export function TelaPartida({ visao: e, eu, fimEm, agir, onNova, esperaNova, onS
   const desafios = e.fase === 'categoria' && minhaVez ? desafiosPossiveis(e, e.vez) : []
   const res = e.fase === 'resultado' || e.fase === 'fim' ? textoResultado(e, eu) : null
   const venci = e.vencedor === eu
+  const reacao = e.fase === 'resultado' || e.fase === 'fim' ? reacaoDe(e, eu) : null
   // só mostra a contagem quando o servidor espera uma pessoa (a vez de um bot dura segundos)
   const esperando = e.fase === 'duelo' && e.duelo ? [e.duelo.desafiante, e.duelo.alvo].filter((i) => !e.duelo!.respondeu.includes(i)) : [e.vez]
   const esperaHumano = e.vencedor === null && e.fase !== 'fim' && (e.fase === 'resultado' || esperando.some((i) => !e.jogadores[i].bot))
@@ -391,6 +410,12 @@ export function TelaPartida({ visao: e, eu, fimEm, agir, onNova, esperaNova, onS
               <p className={'adv-resultado ' + (res.tom === 'ok' ? 'ok' : '')}>
                 <span aria-hidden="true">{res.icone}</span> {res.texto}
               </p>
+            )}
+            {reacao && (
+              <div className="reacao">
+                <Mascote pose={reacao.alegre ? 'comemorando' : 'detetive'} tamanho={56} />
+                <p className="balao">{reacao.texto}</p>
+              </div>
             )}
             {e.fase === 'resultado' && minhaVez && (
               <div className="pg-acoes">

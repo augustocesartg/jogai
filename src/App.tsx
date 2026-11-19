@@ -1,5 +1,4 @@
 import { lazy, Suspense, useState } from 'react'
-import { FundoPoly } from './components/FundoPoly'
 import { Mascote } from './components/Mascote'
 import { lerStats } from './games/palavras-cruzadas/progresso'
 import { lerConfig } from './games/adivinhai/progresso'
@@ -31,10 +30,7 @@ export default function App() {
   else tela = <Home onJogar={setJogo} />
 
   return (
-    <>
-      <FundoPoly />
-      <Suspense fallback={<p className="carregando">Carregando…</p>}>{tela}</Suspense>
-    </>
+    <Suspense fallback={<p className="carregando">Carregando…</p>}>{tela}</Suspense>
   )
 }
 
@@ -44,10 +40,10 @@ function Home({ onJogar }: { onJogar: (id: string) => void }) {
   return (
     <main className="home">
       <header className="topo">
-        <Mascote pose="boas-vindas" tamanho={132} className="mascote-home" />
+        <Mascote pose="boas-vindas" tamanho={120} className="mascote-home" />
         <div>
+          <p className="balao">Bora jogar?</p>
           <h1 className="logo">Jogaí</h1>
-          <p className="tagline">Bora jogar?</p>
         </div>
       </header>
 

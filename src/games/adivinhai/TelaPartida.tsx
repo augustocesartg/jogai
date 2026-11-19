@@ -219,6 +219,18 @@ export function TelaPartida({ visao: estado, eu, fimEm, agir, onNova, esperaNova
             {r.resultado?.tipo === 'esgotou' && (
               <p className="adv-resultado">As 20 pistas acabaram e ninguém acertou. O Mediador agradece!</p>
             )}
+            {r.resultado?.tipo === 'acerto' && r.resultado.jogador === eu && (
+              <div className="reacao">
+                <Mascote pose="comemorando" tamanho={56} />
+                <p className="balao">Mandou bem!</p>
+              </div>
+            )}
+            {r.resultado?.tipo === 'acerto' && r.resultado.jogador !== eu && (
+              <div className="reacao">
+                <Mascote pose="detetive" tamanho={56} />
+                <p className="balao">Essa passou perto…</p>
+              </div>
+            )}
             {estado.vencedor === null && (
               <button className="primario" onClick={() => agir({ tipo: 'proxima' })}>Próxima rodada</button>
             )}
