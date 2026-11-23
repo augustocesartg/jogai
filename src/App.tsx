@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState } from 'react'
 import { Mascote } from './components/Mascote'
-import { lerStats } from './games/palavras-cruzadas/progresso'
+import { Curiosidades } from './curiosidades/Curiosidades'
 import { lerConfig } from './games/adivinhai/progresso'
 
 // cada jogo é um pedaço separado: a home abre leve e o jogo carrega ao entrar (o service worker guarda tudo para o offline)
@@ -35,8 +35,6 @@ export default function App() {
 }
 
 function Home({ onJogar }: { onJogar: (id: string) => void }) {
-  const [stats] = useState(lerStats)
-
   return (
     <main className="home">
       <header className="topo">
@@ -47,14 +45,7 @@ function Home({ onJogar }: { onJogar: (id: string) => void }) {
         </div>
       </header>
 
-      {stats.acertos > 0 && (
-        <div className="stats" aria-label="Seu progresso">
-          <span className="stat">✅ <b>{stats.acertos}</b> palavras acertadas</span>
-          {stats.sequencia > 0 && (
-            <span className="stat">🔥 <b>{stats.sequencia}</b> {stats.sequencia === 1 ? 'dia' : 'dias'} seguidos</span>
-          )}
-        </div>
-      )}
+      <Curiosidades />
 
       <h2 className="secao">Jogos</h2>
       <ul className="lista-jogos">

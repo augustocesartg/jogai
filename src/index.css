@@ -111,11 +111,6 @@ body {
 .mascote-home { flex: none; }
 .logo { font-size: 3rem; line-height: 1; margin: 0; color: var(--primaria); letter-spacing: -1px; }
 .tagline { margin: 6px 0 0; font-size: 1.2rem; color: var(--suave); }
-.stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
-.stat {
-  background: var(--card); border: 1px solid var(--borda); border-radius: 999px;
-  padding: 6px 12px; font-size: 0.9rem;
-}
 .secao { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--suave); margin: 22px 0 10px; }
 .lista-jogos { display: grid; gap: 12px; }
 .cartao-jogo { min-height: 76px; }

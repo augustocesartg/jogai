@@ -161,6 +161,14 @@ Para medir duração e equilíbrio com bots (4 jogadores e 6 fichas: cerca de 65
 VITE_SIMULAR=1 npx vitest run src/games/perguntai/simulacao.test.ts --reporter=verbose
 ```
 
+## Curiosidade do dia e Neste dia
+
+Dois cartões no topo da home, em `src/curiosidades/`.
+
+- **Curiosidade do dia**: banco próprio em `banco.ts` (categoria, título, resumo, texto, fonte), em ordem intercalada por categoria. A do dia é `banco[dias desde 1970 % tamanho]`, com a data no horário de Brasília, então todo mundo vê a mesma. Para acrescentar, basta incluir itens nas listas do arquivo (o teste confere campos, títulos únicos e tamanho do resumo).
+- **Neste dia**: vem da API da Wikipédia em português (`feed/onthisday/selected/MM/DD`, aceita chamada direta do navegador). O resultado fica em `jogai:nesteDia` por dia; sem internet o cartão não aparece.
+- **Saber mais**: abre o ChatGPT em nova aba com a pergunta já preenchida (`chatgpt.com/?q=`).
+
 ## Modo online
 A sala é genérica: o Durable Object (`worker/index.ts`) cuida de jogadores, reconexão, anfitrião, tempo de vez e jogadas automáticas, e delega as regras ao jogo escolhido (`worker/jogos.ts`, contrato em `src/plataforma/jogo.ts`). Para ligar um jogo novo: implementar `JogoServidor` (puro) e `JogoCliente` (opções do anfitrião e tela da partida) e registrá-los nos dois `jogos.ts`.
 
