@@ -165,7 +165,7 @@ VITE_SIMULAR=1 npx vitest run src/games/perguntai/simulacao.test.ts --reporter=v
 
 Dois cartões no topo da home, em `src/curiosidades/`.
 
-- **Curiosidade do dia**: banco próprio em `banco.ts` (categoria, título, resumo, texto, fonte), em ordem intercalada por categoria. A do dia é `banco[dias desde 1970 % tamanho]`, com a data no horário de Brasília, então todo mundo vê a mesma. Para acrescentar, basta incluir itens nas listas do arquivo (o teste confere campos, títulos únicos e tamanho do resumo).
+- **Curiosidade do dia**: banco próprio de 368 itens (categoria, título, resumo, texto, fonte), 92 por categoria, em `dados/<categoria>.ts` e `dados/<categoria>2.ts`, intercalados por `banco.ts` para que dias seguidos tragam assuntos diferentes. A do dia é `banco[dias desde 1970 % tamanho]`, com a data no horário de Brasília, então todo mundo vê a mesma. Para acrescentar, inclua itens mantendo o mesmo número em cada categoria (o teste confere campos, títulos únicos, tamanho do resumo e alternância de categorias).
 - **Neste dia**: vem da API da Wikipédia em português (`feed/onthisday/selected/MM/DD`, aceita chamada direta do navegador). O resultado fica em `jogai:nesteDia` por dia; sem internet o cartão não aparece.
 - **Saber mais**: abre o ChatGPT em nova aba com a pergunta já preenchida (`chatgpt.com/?q=`).
 

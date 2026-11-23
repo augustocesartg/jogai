@@ -1,4 +1,4 @@
-import { CURIOSIDADES, type Curiosidade } from './banco'
+import type { Curiosidade } from './banco'
 
 const FUSO = 'America/Sao_Paulo'
 
@@ -13,7 +13,7 @@ export function numeroDoDia(chave: string): number {
   return Math.floor(Date.UTC(a, m - 1, d) / 86_400_000)
 }
 
-export function curiosidadeDoDia(chave: string = chaveDoDia(), banco: Curiosidade[] = CURIOSIDADES): Curiosidade {
+export function curiosidadeDoDia(chave: string, banco: Curiosidade[]): Curiosidade {
   return banco[numeroDoDia(chave) % banco.length]
 }
 

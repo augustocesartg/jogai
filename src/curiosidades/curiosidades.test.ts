@@ -18,17 +18,29 @@ describe('banco de curiosidades', () => {
     }
   })
 
-  it('dias seguidos trazem categorias diferentes', () => {
-    for (let i = 0; i < 40; i++) {
-      expect(CURIOSIDADES[i].categoria).not.toBe(CURIOSIDADES[i + 1].categoria)
-    }
+  it('cobre o ano todo, com o mesmo número de itens por categoria', () => {
+    expect(CURIOSIDADES.length).toBeGreaterThanOrEqual(366)
+    const porCategoria = new Map<string, number>()
+    for (const c of CURIOSIDADES) porCategoria.set(c.categoria, (porCategoria.get(c.categoria) ?? 0) + 1)
+    expect(new Set(porCategoria.values()).size).toBe(1)
+  })
+
+  it('dias seguidos trazem categorias diferentes, inclusive na volta ao começo', () => {
+    CURIOSIDADES.forEach((c, i) => {
+      expect(c.categoria).not.toBe(CURIOSIDADES[(i + 1) % CURIOSIDADES.length].categoria)
+    })
+  })
+
+  it('não repete o resumo nem o texto', () => {
+    expect(new Set(CURIOSIDADES.map((c) => c.resumo)).size).toBe(CURIOSIDADES.length)
+    expect(new Set(CURIOSIDADES.map((c) => c.texto)).size).toBe(CURIOSIDADES.length)
   })
 })
 
 describe('curiosidade do dia', () => {
   it('é a mesma no mesmo dia e muda no dia seguinte', () => {
-    expect(curiosidadeDoDia('2026-11-23')).toBe(curiosidadeDoDia('2026-11-23'))
-    expect(curiosidadeDoDia('2026-11-23')).not.toBe(curiosidadeDoDia('2026-11-24'))
+    expect(curiosidadeDoDia('2026-11-23', CURIOSIDADES)).toBe(curiosidadeDoDia('2026-11-23', CURIOSIDADES))
+    expect(curiosidadeDoDia('2026-11-23', CURIOSIDADES)).not.toBe(curiosidadeDoDia('2026-11-24', CURIOSIDADES))
   })
 
   it('percorre o banco todo antes de repetir', () => {

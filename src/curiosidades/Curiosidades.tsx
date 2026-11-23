@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import type { Curiosidade } from './banco'
 import { chaveDoDia, curiosidadeDoDia, dataCurta } from './dia'
 import { linkChatGPT } from './ia'
 import { buscarNesteDia, indiceDoDestaque, type FatoDoDia } from './nesteDia'
@@ -31,13 +32,15 @@ function SaberMais({ assunto }: { assunto: string }) {
 
 export function Curiosidades() {
   const dia = useMemo(() => chaveDoDia(), [])
-  const curiosidade = useMemo(() => curiosidadeDoDia(dia), [dia])
+  const [curiosidade, setCuriosidade] = useState<Curiosidade | null>(null)
   const [fatos, setFatos] = useState<FatoDoDia[] | null>(null)
   const [aberta, setAberta] = useState<'curiosidade' | 'neste-dia' | null>(null)
   const [escolhido, setEscolhido] = useState(0)
 
+  // o banco (centenas de textos) é um pedaço à parte, para a home abrir leve
   useEffect(() => {
     let vivo = true
+    import('./banco').then((m) => vivo && setCuriosidade(curiosidadeDoDia(dia, m.CURIOSIDADES)))
     buscarNesteDia(dia).then((f) => {
       if (!vivo || !f) return
       setFatos(f)
@@ -54,14 +57,16 @@ export function Curiosidades() {
   return (
     <>
       <section className="curiosidades" aria-label="Curiosidades">
-        <button className="cartao-curio curiosidade" onClick={() => setAberta('curiosidade')}>
-          <span className="curio-linha">
-            <span className="curio-rotulo">Curiosidade do dia</span>
-            <span className="curio-tag">{curiosidade.categoria}</span>
-          </span>
-          <strong>{curiosidade.titulo}</strong>
-          <small>{curiosidade.resumo}</small>
-        </button>
+        {curiosidade && (
+          <button className="cartao-curio curiosidade" onClick={() => setAberta('curiosidade')}>
+            <span className="curio-linha">
+              <span className="curio-rotulo">Curiosidade do dia</span>
+              <span className="curio-tag">{curiosidade.categoria}</span>
+            </span>
+            <strong>{curiosidade.titulo}</strong>
+            <small>{curiosidade.resumo}</small>
+          </button>
+        )}
 
         {fato && (
           <button className="cartao-curio neste-dia" onClick={() => setAberta('neste-dia')}>
@@ -74,7 +79,7 @@ export function Curiosidades() {
         )}
       </section>
 
-      {aberta === 'curiosidade' && (
+      {aberta === 'curiosidade' && curiosidade && (
         <Janela onFechar={fechar}>
           <span className="curio-tag">{curiosidade.categoria}</span>
           <h2>{curiosidade.titulo}</h2>
